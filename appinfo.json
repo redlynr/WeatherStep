@@ -1,0 +1,209 @@
+{
+    "appKeys": {
+        "KEY_ALTHOURSCOLOR": 15,
+        "KEY_BATTERYCOLOR": 16,
+        "KEY_BATTERYLOWCOLOR": 17,
+        "KEY_BGCOLOR": 11,
+        "KEY_BLUETOOTHCOLOR": 30,
+        "KEY_BLUETOOTHDISCONNECT": 29,
+        "KEY_DATECOLOR": 14,
+        "KEY_DATEFORMAT": 37,
+        "KEY_DISTCOLOR": 23,
+        "KEY_ENABLEADVANCED": 13,
+        "KEY_ENABLEHEALTH": 4,
+        "KEY_ENABLEWEATHER": 7,
+        "KEY_ERROR": 32,
+        "KEY_FONTTYPE": 26,
+        "KEY_HASUPDATE": 35,
+        "KEY_HOURSCOLOR": 12,
+        "KEY_LOCALE": 36,
+        "KEY_MAX": 1,
+        "KEY_MAXCOLOR": 21,
+        "KEY_MIN": 2,
+        "KEY_MINCOLOR": 20,
+        "KEY_OVERRIDELOCATION": 31,
+        "KEY_SHOWSLEEP": 6,
+        "KEY_STEPSCOLOR": 22,
+        "KEY_TEMP": 0,
+        "KEY_TEMPCOLOR": 19,
+        "KEY_TIMEZONES": 10,
+        "KEY_TIMEZONESCODE": 24,
+        "KEY_TIMEZONESMINUTES": 25,
+        "KEY_UPDATE": 33,
+        "KEY_UPDATECOLOR": 34,
+        "KEY_USECELSIUS": 9,
+        "KEY_USEKM": 5,
+        "KEY_WEATHER": 3,
+        "KEY_WEATHERCOLOR": 18,
+        "KEY_WEATHERKEY": 8
+    },
+    "capabilities": [
+        "location",
+        "configurable",
+        "health"
+    ],
+    "companyName": "ActuLife",
+    "enableMultiJS": false,
+    "longName": "WeatherStep",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/screen.png",
+                "menuIcon": true,
+                "name": "IMAGE_SCREEN",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/bt_1.png",
+                "name": "IMAGE_BT_1",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/bt_0.png",
+                "name": "IMAGE_BT_0",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/blank.png",
+                "name": "IMAGE_BLANK",
+                "targetPlatforms": null,
+                "type": "png-trans"
+            },
+            {
+                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
+                "compatibility": "2.7",
+                "file": "fonts/weathericons-regular-webfont.ttf",
+                "name": "FONT_WEATHER_34",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
+                "compatibility": "2.7",
+                "file": "fonts/weathericons-regular-webfont.ttf",
+                "name": "FONT_WEATHER_24",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[\uf058\uf044]",
+                "compatibility": "2.7",
+                "file": "fonts/weathericons-regular-webfont.ttf",
+                "name": "FONT_WEATHER_28",
+                "type": "font"
+            },
+            {
+                "file": "fonts/Prototype.ttf",
+                "name": "FONT_PERFECT_DOS_30",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "font"
+            },
+            {
+                "file": "fonts/Prototype.ttf",
+                "name": "FONT_PERFECT_DOS_20",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "font"
+            },
+            {
+                "file": "fonts/Prototype.ttf",
+                "name": "FONT_PERFECT_DOS_46",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "font"
+            },
+            {
+                "characterRegex": "[\uf294\uf102]",
+                "compatibility": "2.7",
+                "file": "fonts/fontawesome-webfont.ttf",
+                "name": "FONT_AWESOME_18",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:! ]",
+                "compatibility": "2.7",
+                "file": "fonts/Blocko.ttf",
+                "name": "FONT_BLOCKO_56",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:a-z.+%!()/= -]",
+                "compatibility": "2.7",
+                "file": "fonts/Blocko.ttf",
+                "name": "FONT_BLOCKO_24",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:a-z.+%!()/= -]",
+                "compatibility": "2.7",
+                "file": "fonts/Blocko.ttf",
+                "name": "FONT_BLOCKO_16",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9: ]",
+                "compatibility": "2.7",
+                "file": "fonts/Blocko.ttf",
+                "name": "FONT_BLOCKO_64",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9!a-z. ]",
+                "compatibility": "2.7",
+                "file": "fonts/Blocko.ttf",
+                "name": "FONT_BLOCKO_32",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:a-z.+%!()/= -]",
+                "compatibility": "2.7",
+                "file": "fonts/Blocko.ttf",
+                "name": "FONT_BLOCKO_19",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:! ]",
+                "compatibility": "2.7",
+                "file": "fonts/ArchivoNarrow-Bold.ttf",
+                "name": "FONT_ARCHIVO_56",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:a-z.+%!()/= -]",
+                "compatibility": "2.7",
+                "file": "fonts/ArchivoNarrow-Bold.ttf",
+                "name": "FONT_ARCHIVO_28",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:a-zA-Z.+%!()/= -]",
+                "compatibility": "2.7",
+                "file": "fonts/ArchivoNarrow-Bold.ttf",
+                "name": "FONT_ARCHIVO_18",
+                "type": "font"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "WeatherStep",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
+    "versionLabel": "1.8",
+    "watchapp": {
+        "watchface": true
+    }
+}
