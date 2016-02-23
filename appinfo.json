@@ -50,10 +50,16 @@
         "media": [
             {
                 "file": "images/screen.png",
-                "menuIcon": true,
                 "name": "IMAGE_SCREEN",
                 "targetPlatforms": null,
                 "type": "png"
+            },
+            {
+                "file": "images/download.png",
+                "menuIcon": true,
+                "name": "screenshot",
+                "targetPlatforms": null,
+                "type": "bitmap"
             },
             {
                 "file": "images/bt_1.png",
@@ -202,7 +208,7 @@
         "basalt"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "1.8",
+    "versionLabel": "1.0",
     "watchapp": {
         "watchface": true
     }

@@ -78,7 +78,7 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
     //} else if (get_loaded_font() == BLOCKO_FONT) {
     //    strcpy(temp_pattern, useCelsius ? "%dc" : "%df");
     //} else {
-        strcpy(temp_pattern, useCelsius ? "%d°C" : "%d°");
+        strcpy(temp_pattern, useCelsius ? "%d°" : "%d°");
     //}
         
     snprintf(temp_text, sizeof(temp_text), temp_pattern, temp_val);

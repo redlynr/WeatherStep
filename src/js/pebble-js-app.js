@@ -25,7 +25,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.lbento.space/pebble-apps/timeboxed/v1.8/index.html?v=' + currentVersion);
+    Pebble.openURL('http://www.actulife.com/WeatherStep');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
