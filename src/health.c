@@ -33,7 +33,6 @@ static void update_steps_data() {
         current_steps = (int)health_service_sum_today(metric_steps);
 
         snprintf(steps_or_sleep_text, sizeof(steps_or_sleep_text), "%d", current_steps);
-
         set_steps_or_sleep_layer_text(steps_or_sleep_text);
     }
 

@@ -140,13 +140,13 @@ void create_text_layers(Window* window) {
     text_layer_set_background_color(update, GColorClear);
     text_layer_set_text_alignment(update, GTextAlignmentLeft);
 
-    weather = text_layer_create(GRect(20, 0, width, 50));
+    weather = text_layer_create(GRect(PBL_IF_ROUND_ELSE(37, 20), PBL_IF_ROUND_ELSE(15,0), width, 50));
     text_layer_set_background_color(weather, GColorClear);
-    text_layer_set_text_alignment(weather, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft));
+    text_layer_set_text_alignment(weather, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
 
-    temp_cur = text_layer_create(GRect(70, 0, width, 50));
+    temp_cur = text_layer_create(GRect(PBL_IF_ROUND_ELSE(85, 75), PBL_IF_ROUND_ELSE(15,0), width, 50));
     text_layer_set_background_color(temp_cur, GColorClear);
-    text_layer_set_text_alignment(temp_cur, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft));
+    text_layer_set_text_alignment(temp_cur, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
 
     temp_min = text_layer_create(GRect(PBL_IF_ROUND_ELSE(70, 80), temp_min_max_top, width, 50));
     text_layer_set_background_color(temp_min, GColorClear);
@@ -164,7 +164,7 @@ void create_text_layers(Window* window) {
     text_layer_set_background_color(max_icon, GColorClear);
     text_layer_set_text_alignment(max_icon, GTextAlignmentLeft);
 
-    steps_or_sleep = text_layer_create(GRect(PBL_IF_ROUND_ELSE(0, 4), PBL_IF_ROUND_ELSE(123, 123), width, 50));
+    steps_or_sleep = text_layer_create(GRect(PBL_IF_ROUND_ELSE(0, 4), PBL_IF_ROUND_ELSE(130, 123), width, 50));
     text_layer_set_background_color(steps_or_sleep, GColorClear);
     text_layer_set_text_alignment(steps_or_sleep, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentCenter));
 
@@ -212,42 +212,42 @@ void destroy_text_layers() {
 }
 
 void load_face_fonts() {
-    int selected_font = BLOCKO_FONT;
+//    int selected_font = BLOCKO_FONT;
     
-    if (persist_exists(KEY_FONTTYPE)) {
-        selected_font = persist_read_int(KEY_FONTTYPE);
-    }
+//    if (persist_exists(KEY_FONTTYPE)) {
+//        selected_font = persist_read_int(KEY_FONTTYPE);
+//    }
 // KAH force this
-selected_font = SYSTEM_FONT;
-    if (selected_font == SYSTEM_FONT) {
+//selected_font = SYSTEM_FONT;
+//    if (selected_font == SYSTEM_FONT) {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading system fonts. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
         time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_46));
         medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_30));
         base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
         weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_28));
         loaded_font = SYSTEM_FONT;
-    } else if (selected_font == ARCHIVO_FONT) {
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading Archivo font. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-        time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ARCHIVO_56));
-        medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ARCHIVO_28));
-        base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ARCHIVO_18));
-        weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_24));
-        loaded_font = ARCHIVO_FONT;
-    } else if (selected_font == BLOCKO_BIG_FONT) {
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading Blocko font (big). %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-        time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_64));
-        medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_32));
-        base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_19));
-        weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_28));
-        loaded_font = BLOCKO_BIG_FONT;
-    } else {
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading Blocko font. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-        time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_56));
-        medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_24));
-        base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_16));
-        weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_24));
-        loaded_font = BLOCKO_FONT;
-    }
+//    } else if (selected_font == ARCHIVO_FONT) {
+//        APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading Archivo font. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+//        time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ARCHIVO_56));
+//        medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ARCHIVO_28));
+//        base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ARCHIVO_18));
+//        weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_24));
+//        loaded_font = ARCHIVO_FONT;
+//    } else if (selected_font == BLOCKO_BIG_FONT) {
+//        APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading Blocko font (big). %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+//        time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_64));
+//        medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_32));
+//        base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_19));
+//        weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_28));
+//        loaded_font = BLOCKO_BIG_FONT;
+//    } else {
+//        APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading Blocko font. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+//        time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_56));
+//        medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_24));
+//        base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BLOCKO_16));
+//        weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_24));
+//        loaded_font = BLOCKO_FONT;
+//    }
     
     weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_34));
     awesome_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_AWESOME_18));

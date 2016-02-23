@@ -411,7 +411,7 @@ static void watchface_load(Window *window) {
     parent_bounds = bounds.size.w -20;
 
     // Create BATTERY meter Layer
-    s_battery_layer = layer_create(GRect(10, 120, bounds.size.w -20, 2));
+    s_battery_layer = layer_create(GRect(PBL_IF_ROUND_ELSE(20,10), PBL_IF_ROUND_ELSE(125, 120), bounds.size.w -PBL_IF_ROUND_ELSE(40,20), 2));
     layer_set_update_proc(s_battery_layer, battery_update_proc);
     layer_add_child(window_get_root_layer(window), s_battery_layer);
     battery_handler(battery_state_service_peek());

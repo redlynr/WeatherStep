@@ -136,79 +136,17 @@
                 "file": "fonts/fontawesome-webfont.ttf",
                 "name": "FONT_AWESOME_18",
                 "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:! ]",
-                "compatibility": "2.7",
-                "file": "fonts/Blocko.ttf",
-                "name": "FONT_BLOCKO_56",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:a-z.+%!()/= -]",
-                "compatibility": "2.7",
-                "file": "fonts/Blocko.ttf",
-                "name": "FONT_BLOCKO_24",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:a-z.+%!()/= -]",
-                "compatibility": "2.7",
-                "file": "fonts/Blocko.ttf",
-                "name": "FONT_BLOCKO_16",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9: ]",
-                "compatibility": "2.7",
-                "file": "fonts/Blocko.ttf",
-                "name": "FONT_BLOCKO_64",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9!a-z. ]",
-                "compatibility": "2.7",
-                "file": "fonts/Blocko.ttf",
-                "name": "FONT_BLOCKO_32",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:a-z.+%!()/= -]",
-                "compatibility": "2.7",
-                "file": "fonts/Blocko.ttf",
-                "name": "FONT_BLOCKO_19",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:! ]",
-                "compatibility": "2.7",
-                "file": "fonts/ArchivoNarrow-Bold.ttf",
-                "name": "FONT_ARCHIVO_56",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:a-z.+%!()/= -]",
-                "compatibility": "2.7",
-                "file": "fonts/ArchivoNarrow-Bold.ttf",
-                "name": "FONT_ARCHIVO_28",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:a-zA-Z.+%!()/= -]",
-                "compatibility": "2.7",
-                "file": "fonts/ArchivoNarrow-Bold.ttf",
-                "name": "FONT_ARCHIVO_18",
-                "type": "font"
             }
         ]
     },
     "sdkVersion": "3",
     "shortName": "WeatherStep",
     "targetPlatforms": [
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "1.0",
+    "versionLabel": "1.11",
     "watchapp": {
         "watchface": true
     }
