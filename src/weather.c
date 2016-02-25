@@ -84,6 +84,12 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
     snprintf(temp_text, sizeof(temp_text), temp_pattern, temp_val);
     snprintf(max_text, sizeof(max_text), "%d", max_val);
     snprintf(min_text, sizeof(min_text), "%d", min_val);
+  
+  // play it safe - if weather shows "unknown", make it "cloudy"
+    if (weather_val == 0) {
+      weather_val = 7; // cloudy
+    }
+   
     snprintf(weather_text, sizeof(weather_text), "%s", weather_conditions[weather_val]);
     
     persist_write_int(KEY_TEMP, temp_val);

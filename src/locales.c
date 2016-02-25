@@ -69,7 +69,15 @@ void get_current_date(struct tm* tick_time, char* buffer, int buf_size) {
     }
 
     for (unsigned char i = 0; buffer[i]; ++i) {
+        if (i == 0) {
+          
+        }
+        else if (buffer[i-1] == ' ') {
+          
+        }
+        else {
         buffer[i] = tolower((unsigned char)buffer[i]);
+        }
     }
 }
 

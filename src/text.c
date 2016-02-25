@@ -104,9 +104,9 @@ void create_text_layers(Window* window) {
 //        temp_icon_min_max_top = PBL_IF_ROUND_ELSE(18, -2);
 //    } else {
 // KAH - disabled all but my selected font settings
-        hours_top = PBL_IF_ROUND_ELSE(54, 42);
+        hours_top = PBL_IF_ROUND_ELSE(53, 41);
         date_left = PBL_IF_ROUND_ELSE(0, -2);
-        date_top = PBL_IF_ROUND_ELSE(98, 88);
+        date_top = PBL_IF_ROUND_ELSE(99, 89);
         alt_top = PBL_IF_ROUND_ELSE(46, 34);
         battery_top = PBL_IF_ROUND_ELSE(124, 112);
         bt_top = PBL_IF_ROUND_ELSE(68, 56);
