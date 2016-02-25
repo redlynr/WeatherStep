@@ -80,16 +80,21 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
     //} else {
         strcpy(temp_pattern, useCelsius ? "%d°" : "%d°");
     //}
-        
+     
     snprintf(temp_text, sizeof(temp_text), temp_pattern, temp_val);
     snprintf(max_text, sizeof(max_text), "%d", max_val);
     snprintf(min_text, sizeof(min_text), "%d", min_val);
   
-  // play it safe - if weather shows "unknown", make it "cloudy"
-    if (weather_val == 0) {
+  // replace icons that don't look nice
+    if (weather_val == 0) {  // unknown
       weather_val = 7; // cloudy
     }
+    if (weather_val == 38) {  // foggy - for some reason, looks distorted with 34 size
+      weather_val = 13; // hazy
+    }
    
+
+  
     snprintf(weather_text, sizeof(weather_text), "%s", weather_conditions[weather_val]);
     
     persist_write_int(KEY_TEMP, temp_val);

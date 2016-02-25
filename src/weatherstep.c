@@ -29,10 +29,24 @@ static void update_time() {
     char tz_text[22];
     char hour_text[13];
     char date_text[13];
+    char hour_text2[13];
 
     // Write the current hours and minutes into a buffer
     strftime(hour_text, sizeof(hour_text), (clock_is_24h_style() ? "%H:%M" : "%I:%M"), tick_time);
-
+  
+    // remove leading zero on hour
+    if (persist_exists(KEY_NOLEADINGZERO)){
+     if (!clock_is_24h_style() && persist_read_int(KEY_NOLEADINGZERO)) {
+      if (hour_text[0] == '0') {
+        hour_text[0] = ' ';
+ //        for (unsigned char i = 1; hour_text[i]; ++i) {
+ //          hour_text2[i-1]=hour_text[i];
+ //        }
+ //        strcpy(hour_text,hour_text2);
+      }
+     }
+    }  
+      
     if (tz_name[0] != '#') {
         strftime(tz_text, sizeof(tz_text), (clock_is_24h_style() ? "%H:%M" : "%I:%M%p"), gmt_time);
 
@@ -382,7 +396,19 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         uint8_t dateformat_v = dateFormat->value->int8;
         persist_write_int(KEY_DATEFORMAT, dateformat_v);
     }
-
+  
+   Tuple *leadingZero = dict_find(iterator, KEY_NOLEADINGZERO);
+    if (leadingZero) {
+        bool zero = leadingZero->value->int8;
+        persist_write_int(KEY_NOLEADINGZERO, zero);
+    }
+  
+    Tuple *useBigTemp = dict_find(iterator, KEY_USEBIGTEMP);
+    if (useBigTemp) {
+        bool bigTemp = useBigTemp->value->int8;
+        persist_write_int(KEY_USEBIGTEMP, bigTemp);
+    }
+  
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Configs persisted. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     destroy_text_layers();
     create_text_layers(watchface);

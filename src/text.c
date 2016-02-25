@@ -21,6 +21,7 @@ static TextLayer *update;
 static GFont time_font;
 static GFont medium_font;
 static GFont base_font;
+static GFont steps_font;
 static GFont weather_font;
 static GFont weather_big_font;
 static GFont awesome_font;
@@ -106,10 +107,10 @@ void create_text_layers(Window* window) {
 // KAH - disabled all but my selected font settings
         hours_top = PBL_IF_ROUND_ELSE(53, 41);
         date_left = PBL_IF_ROUND_ELSE(0, -2);
-        date_top = PBL_IF_ROUND_ELSE(99, 89);
+        date_top = PBL_IF_ROUND_ELSE(100, 90);
         alt_top = PBL_IF_ROUND_ELSE(46, 34);
         battery_top = PBL_IF_ROUND_ELSE(124, 112);
-        bt_top = PBL_IF_ROUND_ELSE(68, 56);
+        bt_top = PBL_IF_ROUND_ELSE(70, 56);
         update_top = PBL_IF_ROUND_ELSE(86, 74);
         //temp_cur_top = PBL_IF_ROUND_ELSE(2, 2);
         temp_min_max_top = PBL_IF_ROUND_ELSE(20, 2);
@@ -140,13 +141,13 @@ void create_text_layers(Window* window) {
     text_layer_set_background_color(update, GColorClear);
     text_layer_set_text_alignment(update, GTextAlignmentLeft);
 
-    weather = text_layer_create(GRect(PBL_IF_ROUND_ELSE(37, 20), PBL_IF_ROUND_ELSE(15,0), width, 50));
+    weather = text_layer_create(GRect(0, PBL_IF_ROUND_ELSE(15,0), width/2-2, 50));
     text_layer_set_background_color(weather, GColorClear);
-    text_layer_set_text_alignment(weather, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
+    text_layer_set_text_alignment(weather, GTextAlignmentRight);
 
-    temp_cur = text_layer_create(GRect(PBL_IF_ROUND_ELSE(85, 75), PBL_IF_ROUND_ELSE(15,0), width, 50));
+    temp_cur = text_layer_create(GRect(width/2+2, PBL_IF_ROUND_ELSE(15,0), width, 50));
     text_layer_set_background_color(temp_cur, GColorClear);
-    text_layer_set_text_alignment(temp_cur, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
+    text_layer_set_text_alignment(temp_cur, GTextAlignmentLeft);
 
     temp_min = text_layer_create(GRect(PBL_IF_ROUND_ELSE(70, 80), temp_min_max_top, width, 50));
     text_layer_set_background_color(temp_min, GColorClear);
@@ -222,7 +223,13 @@ void load_face_fonts() {
 //    if (selected_font == SYSTEM_FONT) {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Loading system fonts. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
         time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_46));
-        medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_30));
+        if (persist_exists(KEY_USEBIGTEMP) && persist_read_int(KEY_USEBIGTEMP)) {
+            medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_35));
+        }
+        else {
+          medium_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_30));
+        }
+        steps_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_30));
         base_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
         weather_big_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_28));
         loaded_font = SYSTEM_FONT;
@@ -249,7 +256,10 @@ void load_face_fonts() {
 //        loaded_font = BLOCKO_FONT;
 //    }
     
-    weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_34));
+   weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHER_34));
+  
+  
+  
     awesome_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_AWESOME_18));
 }
 
@@ -279,7 +289,7 @@ void set_face_fonts() {
     text_layer_set_font(temp_cur, medium_font);
     text_layer_set_font(temp_min, base_font);
     text_layer_set_font(temp_max, base_font);
-    text_layer_set_font(steps_or_sleep, medium_font);
+    text_layer_set_font(steps_or_sleep, steps_font);
     text_layer_set_font(dist_or_deep, base_font);
 }
 

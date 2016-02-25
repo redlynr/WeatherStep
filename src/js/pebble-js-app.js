@@ -25,7 +25,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.actulife.com/WeatherStep');
+    Pebble.openURL('http://www.actulife.com/WeatherStep/v2.0');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -54,6 +54,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     localStorage['weatherEnabled'] = dict['KEY_ENABLEWEATHER'];
     localStorage['useCelsius'] = dict['KEY_USECELSIUS'];
+    localStorage['leadingZero'] = dict['KEY_LEADINGZERO'];
+    localStorage['useBigTemp'] = dict['KEY_USEBIGTEMP'];
     localStorage['weatherKey'] = dict['KEY_WEATHERKEY'];
     localStorage['overrideLocation'] = dict['KEY_OVERRIDELOCATION'];
 
@@ -143,20 +145,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
     });
 }
 
-function checkForUpdates() {
-    var url = 'http://www.lbento.space/pebble-apps/timeboxed/version.json';
-    xhrRequest(url, 'GET', function(responseText) {
-        try {
-            var resp = JSON.parse(responseText);
-            var updateAvailable = resp.version !== currentVersion;
-            console.log('Current version: ' + currentVersion + ', Latest version: ' + resp.version);
-            sendUpdateData(updateAvailable);
-        } catch (ex) {
-            console.log(ex);
-            sendUpdateData(false);
-        }
-    });
-}
+
 
 function sendUpdateData(updateAvailable) {
     console.log(updateAvailable ? 'Update available!' : 'No updates.');
