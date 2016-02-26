@@ -3,6 +3,8 @@
 #include "text.h"
 
 static bool weather_enabled;
+static bool use_celsius; // KAH 2/26/2016
+static char weather_key_buffer[20]; // KAH 2/26/2016
 
 static char* weather_conditions[] = {
     "\U0000F07B", // 'unknown': 0,
@@ -47,6 +49,8 @@ static char* weather_conditions[] = {
     "\U0000F04A", // 'nt_fog': 39,
 };
 
+
+/*  KAH 2/26/2016 
 void update_weather(void) {
     DictionaryIterator *iter;
     app_message_outbox_begin(&iter);
@@ -64,9 +68,24 @@ void update_weather(void) {
     dict_write_cstring(iter, KEY_WEATHERKEY, weather_key_buffer);
     app_message_outbox_send();
 }
+*/
+
+
+// KAH 2/26/2016
+void update_weather(void) {
+    DictionaryIterator *iter;
+    app_message_outbox_begin(&iter);
+
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting weather with key (%s) %d", weather_key_buffer, (int)time(NULL));
+    dict_write_uint8(iter, KEY_USECELSIUS, use_celsius);
+    dict_write_cstring(iter, KEY_WEATHERKEY, weather_key_buffer);
+    app_message_outbox_send();
+}
+
+
 
 void update_weather_values(int temp_val, int max_val, int min_val, int weather_val) {
-    bool useCelsius = persist_exists(KEY_USECELSIUS) && persist_read_int(KEY_USECELSIUS);
+    //bool useCelsius = persist_exists(KEY_USECELSIUS) && persist_read_int(KEY_USECELSIUS); // KAH 2/26/2016
     char temp_pattern[4];
     char temp_text[8];
     char max_text[8];
@@ -78,7 +97,7 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
     //} else if (get_loaded_font() == BLOCKO_FONT) {
     //    strcpy(temp_pattern, useCelsius ? "%dc" : "%df");
     //} else {
-        strcpy(temp_pattern, useCelsius ? "%d°" : "%d°");
+        strcpy(temp_pattern, use_celsius ? "%d°" : "%d°");
     //}
      
     snprintf(temp_text, sizeof(temp_text), temp_pattern, temp_val);
@@ -97,10 +116,11 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
   
     snprintf(weather_text, sizeof(weather_text), "%s", weather_conditions[weather_val]);
     
-    persist_write_int(KEY_TEMP, temp_val);
-    persist_write_int(KEY_MAX, max_val);
-    persist_write_int(KEY_MIN, min_val);
-    persist_write_int(KEY_WEATHER, weather_val);
+    //KAH 2/26/2016
+    //persist_write_int(KEY_TEMP, temp_val);
+    //persist_write_int(KEY_MAX, max_val);
+    //persist_write_int(KEY_MIN, min_val);
+    //persist_write_int(KEY_WEATHER, weather_val);
 
     set_temp_cur_layer_text(temp_text);
     set_temp_max_layer_text(max_text);
@@ -113,12 +133,42 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
 void toggle_weather(bool from_configs) {
     weather_enabled = persist_exists(KEY_ENABLEWEATHER) && persist_read_int(KEY_ENABLEWEATHER);
     if (weather_enabled) {
+      
+        // KAH 2/26/2016
+        if (persist_exists(KEY_WEATHERKEY)) {
+            persist_read_string(KEY_WEATHERKEY, weather_key_buffer, sizeof(weather_key_buffer));
+        } else {
+            weather_key_buffer[0] = '\0';
+        }
+        use_celsius = persist_exists(KEY_USECELSIUS) && persist_read_int(KEY_USECELSIUS);
+        // KAH 2/26/2016
+      
+      
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather is enabled. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-        update_weather_values(0, 0, 0, 0);
+        //update_weather_values(0, 0, 0, 0);  // KAH 2/26/2016
         if (from_configs) {
             APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating weather from configs. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+            update_weather_values(0, 0, 0, 0);  // KAH 2/26/2016
+            update_weather();
+          
+// KAH 2/26/2016 
+        } else if (persist_exists(KEY_TEMP)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating weather from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+            int temp = persist_read_int(KEY_TEMP);
+            int min = persist_read_int(KEY_MIN);
+            int max = persist_read_int(KEY_MAX);
+            int weather = persist_read_int(KEY_WEATHER);
+
+            update_weather_values(temp, max, min, weather);
+        } else {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "No weather data from storage. Requesting... %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+            update_weather_values(0, 0, 0, 0);
             update_weather();
         }
+// KAH 2/26/2016      
+      
+      
+      
     } else {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather disabled, clearing up. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
         set_temp_cur_layer_text("");
@@ -129,6 +179,17 @@ void toggle_weather(bool from_configs) {
         set_min_icon_layer_text("");
     }
 }
+
+// KAH 2/26/2016
+void store_weather_values(int temp, int max, int min, int weather) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Storing weather data. %d %d%d", use_celsius, (int)time(NULL), (int)time_ms(NULL, NULL));
+    persist_write_int(KEY_TEMP, temp);
+    persist_write_int(KEY_MAX, max);
+    persist_write_int(KEY_MIN, min);
+    persist_write_int(KEY_WEATHER, weather);
+}
+
+
 
 bool is_weather_enabled() {
     return weather_enabled;

@@ -207,6 +207,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         int weather_val = (int)weather_tuple->value->int32;
 
         update_weather_values(temp_val, max_val, min_val, weather_val);
+        store_weather_values(temp_val, max_val, min_val, weather_val); // KAH 2/26/2016
 
         get_health_data();
 
