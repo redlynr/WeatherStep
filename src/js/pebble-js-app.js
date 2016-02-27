@@ -1,4 +1,5 @@
-var currentVersion = "1.8";
+var currentVersion = "3.0";
+var tempUnit;
 
 Pebble.addEventListener("ready",
     function(e) {
@@ -27,7 +28,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.actulife.com/WeatherStep/v2.0');
+    Pebble.openURL('http://www.actulife.com/WeatherStep/v3.0');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -105,7 +106,69 @@ function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocati
             if (typeof(condition) === 'undefined') {
                 condition = 0;
             }
+ 
+            var desc = resp.forecast.txt_forecast.forecastday[0].fcttext;            
+            var city = resp.current_observation.observation_location.city;
+            var lastUpdated = resp.current_observation.observation_time;
+            var dewpoint_c = resp.current_observation.dewpoint_c;
+            var dewpoint_f = resp.current_observation.dewpoint_f;
+            var dewpoint = Math.round((useCelsius ? dewpoint_c : dewpoint_f));
+            var feelslike_c = resp.current_observation.feelslike_c;
+            var feelslike_f = resp.current_observation.feelslike_f;
+            var feelslike = Math.round((useCelsius ? feelslike_c : feelslike_f));
+            var wind = resp.current_observation.wind_string;
+            var precip = resp.current_observation.precip_today_string;
             
+            console.log(desc);
+            console.log(city);     
+          
+          var date = new Date();
+          date.setHours(date.getHours());
+         
+// Create the pin
+//var pin = {
+//  "id": "pin-generic-1",
+//  "time": date.toISOString(),
+//  "layout": {
+//    "type": "genericPin",
+//    "title": "This is a genericPin!",
+//    "tinyIcon": "system://images/NOTIFICATION_FLAG",
+
+//  }
+//}
+          
+tempUnit = (useCelsius ? 'C' : 'F');        
+          
+// Create the pin
+          var pin = {
+            "id": "weather-pin-0",
+            "time": date.toISOString(),
+            "layout": {
+              "type": "weatherPin",
+              "title": "Update",
+              "backgroundColor": "#FFAA55",
+              //"subtitle" : max + '/' + min,
+              "subtitle": temp + '°',
+              "locationName": city,
+              "tinyIcon": "system://images/TIMELINE_WEATHER",
+              //"body": lastUpdated + '\n Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
+              "body": lastUpdated + '\n\nHi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip + '\n\nForecast: \n' + desc + '\n\n',
+              "locationName": city
+            }
+          };
+          
+          
+          
+          console.log('Inserting pin ' + JSON.stringify(pin));
+
+
+          insertUserPin(pin, function(responseText) { 
+            console.log('Result: ' + responseText);
+          });
+    
+          
+          
+          
             sendData(temp, max, min, condition);
 
         } catch(ex) {
