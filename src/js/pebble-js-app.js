@@ -108,7 +108,7 @@ function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocati
             }
  
             var desc = resp.forecast.txt_forecast.forecastday[0].fcttext;            
-            var city = resp.current_observation.observation_location.city;
+            var city = resp.current_observation.display_location.city;
             var lastUpdated = resp.current_observation.observation_time;
             var dewpoint_c = resp.current_observation.dewpoint_c;
             var dewpoint_f = resp.current_observation.dewpoint_f;
@@ -151,8 +151,8 @@ tempUnit = (useCelsius ? 'C' : 'F');
               "subtitle": temp + '°',
               "locationName": city,
               "tinyIcon": "system://images/TIMELINE_WEATHER",
-              //"body": lastUpdated + '\n Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
-              "body": lastUpdated + '\n\nHi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip + '\n\nForecast: \n' + desc + '\n\n',
+              //"body": 'Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
+              "body": 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip + '\n\nForecast: \n' + desc + '\n\n',
               "locationName": city
             }
           };
