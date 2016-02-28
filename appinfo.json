@@ -21,6 +21,7 @@
         "KEY_MAXCOLOR": 21,
         "KEY_MIN": 2,
         "KEY_MINCOLOR": 20,
+        "KEY_NOLEADINGZERO": 38,
         "KEY_OVERRIDELOCATION": 31,
         "KEY_SHOWSLEEP": 6,
         "KEY_STEPSCOLOR": 22,
@@ -159,7 +160,7 @@
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "4.01",
+    "versionLabel": "4.02",
     "watchapp": {
         "watchface": true
     }

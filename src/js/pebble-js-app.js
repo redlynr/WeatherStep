@@ -163,7 +163,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
  
             var city = resp.query.results.channel.location.city;
             
-            //var feelslike =  Math.round(useCelsius ? fahrenheitToCelsius(resp.query.results.channel.wind.chill) : resp.query.results.channel.windchill);
+            var feelslike =  Math.round(useCelsius ? fahrenheitToCelsius(resp.query.results.channel.wind.chill) : resp.query.results.channel.windchill);
             var wind = resp.query.results.channel.wind.speed;
                
                
@@ -179,7 +179,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
               "subtitle": temp + '°',
               "locationName": city,
               "tinyIcon": "system://images/TIMELINE_WEATHER",
-               "body": 'Hi/Lo: ' + max + '°/' + min + '\n\nWind: ' + wind +  '\n\n' + 'Weather Data provided by Yanoo \n\n'
+               "body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind: ' + wind +  '\n\n' + 'Weather Data provided by Yanoo \n\n'
             }
           };
           
@@ -386,18 +386,17 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
             var condition = ow_iconToId[resp.weather[0].icon];
             var location = resp.name;
 
-
             if (typeof(condition) === 'undefined') {
                 condition = 0;
             }
      // Create the pin
           var pin = {
             "id": "weather-pin-0",
-            "time": date.toISOString(),``
+            "time": date.toISOString(),
             "layout": {
               "type": "weatherPin",
               "title": "Update",
-              "location": name,
+              "location": location,
               "backgroundColor": "#FFAA55",
               //"subtitle" : max + '/' + min,
               "subtitle": temp + '°',
