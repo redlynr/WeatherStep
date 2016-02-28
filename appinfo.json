@@ -21,7 +21,6 @@
         "KEY_MAXCOLOR": 21,
         "KEY_MIN": 2,
         "KEY_MINCOLOR": 20,
-        "KEY_NOLEADINGZERO": 38,
         "KEY_OVERRIDELOCATION": 31,
         "KEY_SHOWSLEEP": 6,
         "KEY_STEPSCOLOR": 22,
@@ -37,7 +36,9 @@
         "KEY_USEKM": 5,
         "KEY_WEATHER": 3,
         "KEY_WEATHERCOLOR": 18,
-        "KEY_WEATHERKEY": 8
+        "KEY_WEATHERKEY": 8,
+        "KEY_WEATHERPROVIDER": 40,
+        "KEY_YAHOOKEY": 41
     },
     "capabilities": [
         "location",
@@ -51,70 +52,15 @@
     "resources": {
         "media": [
             {
-                "file": "images/screen.png",
-                "name": "IMAGE_SCREEN",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/download.png",
-                "menuIcon": true,
-                "name": "screenshot",
-                "targetPlatforms": null,
-                "type": "bitmap"
-            },
-            {
-                "file": "images/bt_1.png",
-                "name": "IMAGE_BT_1",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/bt_0.png",
-                "name": "IMAGE_BT_0",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/blank.png",
-                "name": "IMAGE_BLANK",
-                "targetPlatforms": null,
-                "type": "png-trans"
-            },
-            {
-                "characterRegex": "[\uf058\uf044]",
-                "file": "fonts/weathericons-regular-webfont.ttf",
-                "name": "FONT_WEATHER_28",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
-                "file": "fonts/weathericons-regular-webfont.ttf",
-                "name": "FONT_WEATHER_24",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
-                "file": "fonts/weathericons-regular-webfont.ttf",
-                "name": "FONT_WEATHER_34",
-                "targetPlatforms": null,
+                "characterRegex": "[\uf294\uf102]",
+                "compatibility": "2.7",
+                "file": "fonts/fontawesome-webfont.ttf",
+                "name": "FONT_AWESOME_18",
                 "type": "font"
             },
             {
                 "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_46",
-                "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
-                ],
-                "type": "font"
-            },
-            {
-                "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_20",
+                "name": "FONT_PERFECT_DOS_35",
                 "targetPlatforms": [
                     "aplite",
                     "basalt",
@@ -134,7 +80,7 @@
             },
             {
                 "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_35",
+                "name": "FONT_PERFECT_DOS_20",
                 "targetPlatforms": [
                     "aplite",
                     "basalt",
@@ -143,11 +89,66 @@
                 "type": "font"
             },
             {
-                "characterRegex": "[\uf294\uf102]",
-                "compatibility": "2.7",
-                "file": "fonts/fontawesome-webfont.ttf",
-                "name": "FONT_AWESOME_18",
+                "file": "fonts/Prototype.ttf",
+                "name": "FONT_PERFECT_DOS_46",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
                 "type": "font"
+            },
+            {
+                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
+                "file": "fonts/weathericons-regular-webfont.ttf",
+                "name": "FONT_WEATHER_34",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
+                "file": "fonts/weathericons-regular-webfont.ttf",
+                "name": "FONT_WEATHER_24",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[\uf058\uf044]",
+                "file": "fonts/weathericons-regular-webfont.ttf",
+                "name": "FONT_WEATHER_28",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "file": "images/blank.png",
+                "name": "IMAGE_BLANK",
+                "targetPlatforms": null,
+                "type": "png-trans"
+            },
+            {
+                "file": "images/bt_0.png",
+                "name": "IMAGE_BT_0",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/bt_1.png",
+                "name": "IMAGE_BT_1",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/download.png",
+                "menuIcon": true,
+                "name": "screenshot",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/screen.png",
+                "name": "IMAGE_SCREEN",
+                "targetPlatforms": null,
+                "type": "png"
             }
         ]
     },
@@ -158,7 +159,7 @@
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "3.11",
+    "versionLabel": "4.0",
     "watchapp": {
         "watchface": true
     }

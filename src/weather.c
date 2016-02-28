@@ -76,9 +76,10 @@ void update_weather(void) {
     DictionaryIterator *iter;
     app_message_outbox_begin(&iter);
 
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting weather with key (%s) %d", weather_key_buffer, (int)time(NULL));
+  //  APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting weather with key (%s) %d", weather_key_buffer, (int)time(NULL));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting weather. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL)); 
     dict_write_uint8(iter, KEY_USECELSIUS, use_celsius);
-    dict_write_cstring(iter, KEY_WEATHERKEY, weather_key_buffer);
+ //   dict_write_cstring(iter, KEY_WEATHERKEY, weather_key_buffer);
     app_message_outbox_send();
 }
 
