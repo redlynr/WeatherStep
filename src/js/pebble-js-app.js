@@ -99,8 +99,9 @@ function parse(type) {
 };
 
 function locationSuccess(pos, provider, weatherKey, useCelsius, overrideLocation) {
-    console.log("Retrieving weather info");
-
+  console.log(overrideLocation);
+  console.log("Retrieving weather info");
+  
 switch (provider) {  
         case OPEN_WEATHER:  
             fetchOpenWeatherMapData(pos, useCelsius, overrideLocation);  
@@ -372,8 +373,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
     } else {
         url += '&q=' + encodeURIComponent(overrideLocation);
     }
-          var date = new Date();
-          date.setHours(date.getHours());
+
   
     console.log(url);
 
@@ -389,6 +389,11 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
             if (typeof(condition) === 'undefined') {
                 condition = 0;
             }
+          
+          var date = new Date();
+          date.setHours(date.getHours());      
+          
+          
      // Create the pin
           var pin = {
             "id": "weather-pin-0",
@@ -396,13 +401,13 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
             "layout": {
               "type": "weatherPin",
               "title": "Update",
-              "location": location,
+              "locationName": location,
               "backgroundColor": "#FFAA55",
               //"subtitle" : max + '/' + min,
               "subtitle": temp + '°',
               "tinyIcon": "system://images/TIMELINE_WEATHER",
               //"body": 'Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
-              "body": 'Hi/Lo: ' + max + '°/' + min +  '\n\n' + 'Weather Data provided by Open Weather \n\n'
+              "body": 'Hi/Lo: ' + max + '°/' + min +  '°\n\n' + 'Weather Data provided by Open Weather \n\n'
             }
           };
           
@@ -478,7 +483,7 @@ function getWeather(provider, weatherKey, useCelsius, overrideLocation) {
     useCelsius = useCelsius || false;
     overrideLocation = overrideLocation || '';
     if (overrideLocation) {
-        locationSuccess(null, weatherKey, useCelsius, overrideLocation);
+        locationSuccess(null, provider, weatherKey, useCelsius, overrideLocation);
     } else {
         navigator.geolocation.getCurrentPosition(
             function(pos) {
