@@ -5,6 +5,7 @@
 static bool weather_enabled;
 static bool use_celsius; // KAH 2/26/2016
 static char weather_key_buffer[20]; // KAH 2/26/2016
+static bool health_enabled;
 
 static char* weather_conditions[] = {
     "\U0000F07B", // 'unknown': 0,
@@ -92,6 +93,7 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
     char max_text[8];
     char min_text[8];
     char weather_text[4];
+    char steps_text[10]; // if health not enabled, put hi/lo in it's spot
 
     //if (get_loaded_font() == BLOCKO_BIG_FONT) {
     //    strcpy(temp_pattern, useCelsius ? "%dc" : "%df");
@@ -104,6 +106,11 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
     snprintf(temp_text, sizeof(temp_text), temp_pattern, temp_val);
     snprintf(max_text, sizeof(max_text), "%d", max_val);
     snprintf(min_text, sizeof(min_text), "%d", min_val);
+  
+    health_enabled = persist_read_int(KEY_ENABLEHEALTH);
+    if (!health_enabled) {
+      snprintf(steps_text,sizeof(steps_text), "%d°/%d°", max_val,min_val);
+    }
   
   // replace icons that don't look nice
     if (weather_val == 0) {  // unknown
@@ -127,6 +134,10 @@ void update_weather_values(int temp_val, int max_val, int min_val, int weather_v
     set_temp_max_layer_text(max_text);
     set_temp_min_layer_text(min_text);
     set_weather_layer_text(weather_text);
+  
+    
+    set_steps_or_sleep_layer_text(steps_text);
+  
     set_max_icon_layer_text("\U0000F058");
     set_min_icon_layer_text("\U0000F044");
 }

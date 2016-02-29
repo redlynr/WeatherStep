@@ -164,8 +164,13 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
  
             var city = resp.query.results.channel.location.city;
             
-            var feelslike =  Math.round(useCelsius ? fahrenheitToCelsius(resp.query.results.channel.wind.chill) : resp.query.results.channel.windchill);
-            var wind = resp.query.results.channel.wind.speed;
+            var feelslike =  Math.round(useCelsius ? fahrenheitToCelsius(resp.query.results.channel.wind.chill) : resp.query.results.channel.wind.chill);
+            
+            var unitsSpeed = resp.query.results.channel.units.speed;
+            var wind = resp.query.results.channel.wind.speed + unitsSpeed;
+            
+            var desc = results.condition.text;
+            
                
                
  // Create the pin
@@ -180,7 +185,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
               "subtitle": temp + '°',
               "locationName": city,
               "tinyIcon": "system://images/TIMELINE_WEATHER",
-               "body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind: ' + wind +  '\n\n' + 'Weather Data provided by Yanoo \n\n'
+              "body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind Chill: ' + feelslike + '°\n\nWind Speed: ' + wind +  '\n\n' + desc + '\n\n' + 'Weather Data provided by Yanoo \n\n'
             }
           };
           
@@ -385,6 +390,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
             var min = useCelsius ? kelvinToCelsius(resp.main.temp_min) : kelvinToFahrenheit(resp.main.temp_min);
             var condition = ow_iconToId[resp.weather[0].icon];
             var location = resp.name;
+            var wind = resp.wind.speed;
 
             if (typeof(condition) === 'undefined') {
                 condition = 0;
@@ -407,7 +413,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
               "subtitle": temp + '°',
               "tinyIcon": "system://images/TIMELINE_WEATHER",
               //"body": 'Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
-              "body": 'Hi/Lo: ' + max + '°/' + min +  '°\n\n' + 'Weather Data provided by Open Weather \n\n'
+              "body": 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n' + 'Weather Data provided by Open Weather \n\n'
             }
           };
           

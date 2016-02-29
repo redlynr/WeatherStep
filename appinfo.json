@@ -156,11 +156,12 @@
     "sdkVersion": "3",
     "shortName": "WeatherStep",
     "targetPlatforms": [
+        "aplite",
         "basalt",
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "4.10",
+    "versionLabel": "4.30",
     "watchapp": {
         "watchface": true
     }
