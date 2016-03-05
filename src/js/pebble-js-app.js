@@ -136,7 +136,9 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
      var url = 'https://query.yahooapis.com/v1/public/yql?format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&q='; 
      var woeidQuery = ''; 
      if (overrideLocation) { 
-         woeidQuery = 'select woeid from geo.places where text="' + overrideLocation + '"'; 
+         //woeidQuery = 'select woeid from geo.places where text="' + overrideLocation + '"'; 
+         // KAH 3/4/2016
+         woeidQuery = 'select woeid from geo.places(1) where text="' + overrideLocation + '"'; 
      } else { 
          woeidQuery = '' + woeid; 
      } 
@@ -152,10 +154,21 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
          xhrRequest(url, 'GET', function(responseText) { 
              try { 
                  var resp = JSON.parse(responseText); 
+               // KAH 3/4/2016
+                 var now = new Date();  
+                 var day = now.getDate();  
+                 var dayUTC = now.getUTCDate();  
+                 var resultIndex = (now.getDate() === now.getUTCDate() ? 1 : (now.getTimezoneOffset() > 0 ? 0 : 2));  
+
+               
                  var results = resp.query.results.channel.item; 
                  var temp = Math.round(useCelsius ? fahrenheitToCelsius(results.condition.temp) : results.condition.temp); 
-                 var min = Math.round(useCelsius ? fahrenheitToCelsius(results.forecast['1'].low) : results.forecast['1'].low); 
-                 var max = Math.round(useCelsius ? fahrenheitToCelsius(results.forecast['1'].high) : results.forecast['1'].high); 
+//                 var min = Math.round(useCelsius ? fahrenheitToCelsius(results.forecast['1'].low) : results.forecast['1'].low); 
+//                 var max = Math.round(useCelsius ? fahrenheitToCelsius(results.forecast['1'].high) : results.forecast['1'].high);
+// KAH 3/4/2016
+                 var min = Math.round(useCelsius ? fahrenheitToCelsius(results.forecast[resultIndex].low) : results.forecast[resultIndex].low);  
+                 var max = Math.round(useCelsius ? fahrenheitToCelsius(results.forecast[resultIndex].high) : results.forecast[resultIndex].high);
+               
                  var condition = y_iconToId[results.condition.code]; 
  
                  if (typeof(condition) === 'undefined') { 
@@ -171,7 +184,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
             
             var desc = results.condition.text;
             
-               
+          
                
  // Create the pin
           var pin = {
@@ -184,7 +197,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
               //"subtitle" : max + '/' + min,
               "subtitle": temp + '°',
               "locationName": city,
-              "tinyIcon": "system://images/TIMELINE_WEATHER",
+              "tinyIcon": "system://images/CLOUDY_DAY",
               "body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind Chill: ' + feelslike + '°\n\nWind Speed: ' + wind +  '\n\n' + desc + '\n\n' + 'Weather Data provided by Yanoo \n\n'
             }
           };
@@ -271,7 +284,7 @@ function getWoeidAndExecuteQuery(pos, useCelsius) {
 
 
 function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocation) {
-    var url = 'http://api.wunderground.com/api/' + weatherKey + '/conditions/forecast/q/'
+    var url = 'http://api.wunderground.com/api/' + weatherKey + '/conditions/forecast/hourly/q/';
     if (!overrideLocation) {
         url += pos.coords.latitude + ',' + pos.coords.longitude + '.json';
     } else {
@@ -294,7 +307,14 @@ function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocati
                 condition = 0;
             }
  
-            var desc = resp.forecast.txt_forecast.forecastday[0].fcttext;            
+            var desc = ' ';
+            if (useCelsius) {
+              desc = resp.forecast.txt_forecast.forecastday[0].fcttext_metric;            
+            }
+            else {
+              desc = resp.forecast.txt_forecast.forecastday[0].fcttext;            
+            }
+          
             var city = resp.current_observation.display_location.city;
             var dewpoint_c = resp.current_observation.dewpoint_c;
             var dewpoint_f = resp.current_observation.dewpoint_f;
@@ -305,54 +325,122 @@ function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocati
             var wind = resp.current_observation.wind_string;
             var precip = resp.current_observation.precip_today_string;
             
-            console.log(desc);
-            console.log(city);     
+            //console.log('hourly forecast \n');
           
-          var date = new Date();
-          date.setHours(date.getHours());
-         
-// Create the pin
-//var pin = {
-//  "id": "pin-generic-1",
-//  "time": date.toISOString(),
-//  "layout": {
-//    "type": "genericPin",
-//    "title": "This is a genericPin!",
-//    "tinyIcon": "system://images/NOTIFICATION_FLAG",
+             var date = new Date();
+            date.setHours(date.getHours());         
+            
 
-//  }
-//}
+          
+          
+     
+          
+var tinyIcon = wu_IconToTiny[icon];
+         
+
+          
+          
           
 tempUnit = (useCelsius ? 'C' : 'F');        
           
-// Create the pin
+// Create the regular update pin
           var pin = {
             "id": "weather-pin-0",
             "time": date.toISOString(),
             "layout": {
               "type": "weatherPin",
-              "title": "Update",
+              "title": resp.current_observation.weather,
               "backgroundColor": "#FFAA55",
               //"subtitle" : max + '/' + min,
               "subtitle": temp + '°',
               "locationName": city,
-              "tinyIcon": "system://images/TIMELINE_WEATHER",
+              //"tinyIcon": "system://images/TIMELINE_WEATHER",
+              "tinyIcon": tinyIcon,
               //"body": 'Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
-              "body": 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip + '\n\nForecast: \n' + desc + '\n\n' + 'Weather Data provided by Weather Underground \n\n'
+              "body": 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip + '\n\nForecast: \n' + desc + '\n\n' + 'Weather Data provided:\nby Weather Underground \n\n'
             }
           };
           
           
           
-          console.log('Inserting pin ' + JSON.stringify(pin));
+          console.log('Inserting pin #1 ' + JSON.stringify(pin));
 
 
-          insertUserPin(pin, function(responseText) { 
+          insertUserPin(pin, function(responseText){
             console.log('Result: ' + responseText);
           });
     
-          
-          
+
+// create a pin if precip will occur in future hours
+          /*
+           var rain_pin = {
+                  "id": "rain-pin-0",
+                  "time": date.toISOString(),
+                  "layout": {
+                  "type": "weatherPin",
+                  "title": resp.hourly_forecast[0].condition,
+                  "backgroundColor": "#AAFFAA",
+                  "subtitle": temp + '°',
+                  "locationName": city,
+                  "tinyIcon": tinyIcon,
+                    "body":  "temporary"
+                  }    
+          };
+          console.log('Inserting pin #2 ' + JSON.stringify(rain_pin));
+          insertUserPin(rain_pin, function(responseText){
+            
+          });
+ */         
+          var rain_pin = "";
+          var i = 1;
+          var rain_found = false;
+          if (resp.hourly_forecast[0].pop <30){
+            for (i=1; i<resp.hourly_forecast.length; i++){
+              //console.log(resp.hourly_forecast[i].FCTTIME.hour + ' ' + resp.hourly_forecast[i].condition);
+              if (resp.hourly_forecast[i].pop >= 30) {
+                date = new Date();
+                date.setMinutes(0);
+                date.setHours(date.getHours() + 1 + i);
+                
+                temp = Math.round((useCelsius ? resp.hourly_forecast[i].temp.metric : resp.hourly_forecast[i].temp.english));
+                icon = resp.hourly_forecast[i].icon_url.match(/\/([^.\/]*)\.gif/)[1];
+                tinyIcon = wu_IconToTiny[icon];
+                
+                rain_pin = {
+                  "id": "rain-pin-0",
+                  "time": date.toISOString(),
+                  "layout": {
+                  "type": "weatherPin",
+                  "title": resp.hourly_forecast[i].condition,
+                  "backgroundColor": "#AAFFAA",
+                  "subtitle": temp + '°',
+                  "locationName": city,
+                  "tinyIcon": tinyIcon,
+                  "body":  resp.hourly_forecast[i].condition + '\nPop: ' + resp.hourly_forecast[i].pop + '% ' + '\n\n' + 'Weather Data provided by:\nWeather Underground \n\n'
+                  }                
+              };
+              console.log('Inserting pin #3' + JSON.stringify(rain_pin));
+              insertUserPin(rain_pin, function(responseText) { 
+                console.log('Result: ' + responseText);
+              });
+              rain_found = true;
+              break;
+            }              
+          } 
+            if (rain_found !== true) {
+                console.log('deleting future pin #1 ' + JSON.stringify(rain_pin));
+                deleteUserPin(rain_pin, function(responseText) { 
+                console.log('Result: ' + responseText);
+              }); 
+            }
+        } 
+      else
+        {
+          console.log('deleting future pin #2 ' + JSON.stringify(rain_pin));
+         deleteUserPin(rain_pin, function(responseText) { 
+                console.log('Result: ' + responseText);
+              }); 
+        }
           
             sendData(temp, max, min, condition);
 
@@ -372,11 +460,15 @@ tempUnit = (useCelsius ? 'C' : 'F');
 
 function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
     var url = 'http://api.openweathermap.org/data/2.5/weather?appid=979cbf006bf67bc368a54af240d15cf3';
+  // KAH 3/4/2016
+    var urlForecast = 'http://api.openweathermap.org/data/2.5/forecast/daily?appid=979cbf006bf67bc368a54af240d15cf3&format=json&cnt=3'; 
     
     if (!overrideLocation) {
         url += '&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude;
+        urlForecast += '&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude; 
     } else {
         url += '&q=' + encodeURIComponent(overrideLocation);
+        urlForecast += '&q=' + encodeURIComponent(overrideLocation); 
     }
 
   
@@ -386,12 +478,13 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
         try {
             var resp = JSON.parse(responseText);
             var temp = useCelsius ? kelvinToCelsius(resp.main.temp) : kelvinToFahrenheit(resp.main.temp);
-            var max = useCelsius ? kelvinToCelsius(resp.main.temp_max) : kelvinToFahrenheit(resp.main.temp_max);
-            var min = useCelsius ? kelvinToCelsius(resp.main.temp_min) : kelvinToFahrenheit(resp.main.temp_min);
+            //var max = useCelsius ? kelvinToCelsius(resp.main.temp_max) : kelvinToFahrenheit(resp.main.temp_max);
+            //var min = useCelsius ? kelvinToCelsius(resp.main.temp_min) : kelvinToFahrenheit(resp.main.temp_min);
             var condition = ow_iconToId[resp.weather[0].icon];
             var location = resp.name;
             var wind = resp.wind.speed;
-
+          
+            var day = new Date(resp.dt * 1000); 
             if (typeof(condition) === 'undefined') {
                 condition = 0;
             }
@@ -427,9 +520,35 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
           });
          
             
-            sendData(temp, max, min, condition);
+            //sendData(temp, max, min, condition);
+          // KAH 3/4/2016
+           +            xhrRequest(urlForecast, 'GET', function(forecastRespText) {  
+                try {  
+                    console.log('Retrieving forecast data from OpenWeatherMap');  
+                    var fResp = JSON.parse(forecastRespText);  
+  
+                   var max = useCelsius ? kelvinToCelsius(fResp.list[0].temp.max) : kelvinToFahrenheit(fResp.list[0].temp.max);  
+                    var min = useCelsius ? kelvinToCelsius(fResp.list[0].temp.min) : kelvinToFahrenheit(fResp.list[0].temp.min);  
+  
+                   for (var fIndex in fResp.list) {  
+                        var fDay = new Date(fResp.list[fIndex].dt * 1000);  
+                         if (day.getUTCDate() === fDay.getUTCDate()) {  
+                            console.log(JSON.stringify(fResp.list[fIndex]));  
+                           max = useCelsius ? kelvinToCelsius(fResp.list[fIndex].temp.max) : kelvinToFahrenheit(fResp.list[fIndex].temp.max);  
+                            min = useCelsius ? kelvinToCelsius(fResp.list[fIndex].temp.min) : kelvinToFahrenheit(fResp.list[fIndex].temp.min);  
+                       }  
+                   }  
+  
+                    sendData(temp, max, min, condition);  
+                } catch (ex) {  
+                    console.log('Failure requesting forecast data from OpenWeatherMap');  
+                    console.log(ex.stack);  
+               }  
+            });  
+
 
         } catch (ex) {
+             console.log('Failure requesting current weather from OpenWeatherMap'); 
             console.log(ex.stack);
         }
     });
@@ -571,6 +690,51 @@ var wu_iconToId = {
     'nt_fog': 39
 };
 
+var wu_IconToTiny = {
+    'unknown': "system://images/TIMELINE_WEATHER",
+    'clear': "system://images/TIMELINE_SUN",
+    'sunny': "system://images/TIMELINE_SUN",
+    'partlycloudy': "system://images/PARTLY_CLOUDY",
+    'mostlycloudy': "system://images/TIMELINE_WEATHER",
+    'mostlysunny': "system://images/PARTLY_CLOUDY",
+    'partlysunny': "system://images/PARTLY_CLOUDY",
+    'cloudy': "system://images/TIMELINE_WEATHER",
+    'rain': "system://images/HEAVY_RAIN",
+    'snow': "system://images/HEAVY_SNOW",
+    'tstorms': "system://images/HEAVY_RAIN",
+    'sleat': "system://images/LIGHT_SNOW",
+    'flurries': "system://images/LIGHT_SNOW",
+    'hazy': "system://images/TIMELINE_WEATHER",
+    'chancetstorms': "system://images/HEAVY_RAIN",
+    'chancesnow': "system://images/LIGHT_SNOW",
+    'chancesleat': "system://images/LIGHT_SNOW",
+    'chancerain': "system://images/LIGHT_RAIN",
+    'chanceflurries': "system://images/LIGHT_SNOW",
+    'nt_unknown': "system://images/TIMELINE_WEATHER",
+    'nt_clear': "system://images/TIMELINE_SUN",
+    'nt_sunny': "system://images/TIMELINE_SUN",
+    'nt_partlycloudy': "system://images/PARTLY_CLOUDY",
+    'nt_mostlycloudy': "system://images/CLOUDY_DAY",
+    'nt_mostlysunny': "system://images/PARTLY_CLOUDY",
+    'nt_partlysunny': "system://images/PARTLY_CLOUDY",
+    'nt_cloudy': "system://images/CLOUDY_DAY",
+    'nt_rain': "system://images/HEAVY_RAIN",
+    'nt_snow': "system://images/HEAVY_SNOW",
+    'nt_tstorms': "system://images/HEAVY_RAIN",
+    'nt_sleat': "system://images/LIGHT_SNOW",
+    'nt_flurries': "system://images/LIGHT_SNOW",
+    'nt_hazy': "system://images/CLOUDY_DAY",
+    'nt_chancetstorms': "system://images/HEAVY_RAIN",
+    'nt_chancesnow': "system://images/LIGHT_SNOW",
+    'nt_chancesleat': "system://images/LIGHT_SNOW",
+    'nt_chancerain': "system://images/LIGHT_RAIN",
+    'nt_chanceflurries': "system://images/LIGHT_SNOW",
+    'fog': "system://images/CLOUDY_DAY",
+    'nt_fog': "system://images/CLOUDY_DAY"
+};
+
+
+
 var ow_iconToId = {
     '01d': 1,
     '01d': 2,
@@ -650,4 +814,3 @@ var y_iconToId = {
     '0': 45,  
     '2': 46  
 };  
-
