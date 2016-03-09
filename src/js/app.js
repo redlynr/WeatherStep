@@ -1,4 +1,4 @@
-var currentVersion = "4.0";
+
 var tempUnit;
 var OPEN_WEATHER = 0;  
 var WUNDERGROUND = 1;  
@@ -8,7 +8,8 @@ var YAHOO = 2;
 Pebble.addEventListener("ready",
     function(e) {
         console.log("Pebble Ready!");
-        if (localStorage['weatherEnabled'] && parse(localStorage['weatherEnabled'].toLowerCase())) {
+//        if (localStorage['weatherEnabled'] && parse(localStorage['weatherEnabled'].toLowerCase())) {
+        if (localStorage.weatherEnabled && parse(localStorage.weatherEnabled.toLowerCase())) {          
 /* KAH 2/26/2016 
             getWeather(localStorage['weatherKey'], parse(localStorage['useCelsius'].toLowerCase()), localStorage['overrideLocation']);
 */
@@ -21,10 +22,8 @@ Pebble.addEventListener("ready",
 Pebble.addEventListener('appmessage',
     function(e) {
         console.log('AppMessage received!');
-        if (e.payload.KEY_HASUPDATE) {
-            console.log('Checking for updates...');
-            checkForUpdates();
-        } else {
+
+        
             console.log('Fetching weather info...');
 //            getWeather(localStorage['weatherKey'], parse(localStorage['useCelsius'].toLowerCase()), localStorage['overrideLocation']);
             var weatherKey = localStorage.weatherKey;  
@@ -41,7 +40,7 @@ Pebble.addEventListener('appmessage',
             }  
             getWeather(provider, weatherKey, parse(localStorage.useCelsius.toLowerCase()), localStorage.overrideLocation);  
           
-        }
+        
     }                     
 );
 
@@ -55,14 +54,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     var dict = {};
 
-    for (item in configData) {
+    for (var item in configData) {
         var key = 'KEY_' + item.toUpperCase();
         var value = configData[item];
         if (String(value).indexOf('0x') !== -1) {
             value = parseInt(value, 16);
         }
         if (String(value).indexOf('|') !== -1) {
-            newValue = value.split('|')[1].split(':')[0];
+            var newValue = value.split('|')[1].split(':')[0];
             dict[key + 'CODE'] = value.split('|')[0];
             dict[key + 'MINUTES'] = parseInt(value.split('|')[1].split(':')[1], 10);
             value = parseInt(newValue, 10);
@@ -73,12 +72,18 @@ Pebble.addEventListener('webviewclosed', function(e) {
         dict[key] = value;
     }
 
-    localStorage['weatherEnabled'] = dict['KEY_ENABLEWEATHER'];
-    localStorage['useCelsius'] = dict['KEY_USECELSIUS'];
-    localStorage['leadingZero'] = dict['KEY_LEADINGZERO'];
-    localStorage['useBigTemp'] = dict['KEY_USEBIGTEMP'];
-    localStorage['weatherKey'] = dict['KEY_WEATHERKEY'];
-    localStorage['overrideLocation'] = dict['KEY_OVERRIDELOCATION'];
+//    localStorage['weatherEnabled'] = dict['KEY_ENABLEWEATHER'];
+//    localStorage['useCelsius'] = dict['KEY_USECELSIUS'];
+//    localStorage['leadingZero'] = dict['KEY_LEADINGZERO'];
+//    localStorage['useBigTemp'] = dict['KEY_USEBIGTEMP'];
+//    localStorage['weatherKey'] = dict['KEY_WEATHERKEY'];
+//    localStorage['overrideLocation'] = dict['KEY_OVERRIDELOCATION'];
+    localStorage.weatherEnabled = dict.KEY_ENABLEWEATHER;
+    localStorage.useCelsius = dict.KEY_USECELSIUS;
+    localStorage.leadingZero = dict.KEY_LEADINGZERO;
+    localStorage.useBigTemp = dict.KEY_USEBIGTEMP;
+    localStorage.weatherKey = dict.KEY_WEATHERKEY;
+    localStorage.overrideLocation = dict.KEY_OVERRIDELOCATION;  
     localStorage.weatherProvider = dict.KEY_WEATHERPROVIDER;  
     localStorage.yahooKey = dict.KEY_YAHOOKEY;  
     delete dict.KEY_WEATHERKEY;  
@@ -96,7 +101,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
 function parse(type) {
     return typeof type == 'string' ? JSON.parse(type) : type;
-};
+}
 
 function locationSuccess(pos, provider, weatherKey, useCelsius, overrideLocation) {
   console.log(overrideLocation);
@@ -116,21 +121,10 @@ switch (provider) {
 }  
 
 
-
 function locationError(err) {
-  console.log('location error on the JS side! Failure #' + currentFailures);
-  //if we fail, try using the cached location
-  if(currentFailures <= failureRetryAmount) {
-    // reset cache time
-    window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
-
-    getWeather();
-    currentFailures++;
-  } else {
-    // until we get too many failures, at which point give up
-    currentFailures = 0;
-  }
+    console.log('Error requesting location!');
 }
+
 
 function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) { 
      var url = 'https://query.yahooapis.com/v1/public/yql?format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&q='; 
@@ -156,8 +150,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
                  var resp = JSON.parse(responseText); 
                // KAH 3/4/2016
                  var now = new Date();  
-                 var day = now.getDate();  
-                 var dayUTC = now.getUTCDate();  
+
                  var resultIndex = (now.getDate() === now.getUTCDate() ? 1 : (now.getTimezoneOffset() > 0 ? 0 : 2));  
 
                
@@ -192,12 +185,12 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
             "time": date.toISOString(),
             "layout": {
               "type": "weatherPin",
-              "title": "Update",
+              "title": desc,
               "backgroundColor": "#FFAA55",
               //"subtitle" : max + '/' + min,
               "subtitle": temp + '°',
               "locationName": city,
-              "tinyIcon": "system://images/CLOUDY_DAY",
+              "tinyIcon": "system://images/TIMELINE_WEATHER",
               "body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind Chill: ' + feelslike + '°\n\nWind Speed: ' + wind +  '\n\n' + desc + '\n\n' + 'Weather Data provided by Yanoo \n\n'
             }
           };
@@ -337,10 +330,10 @@ function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocati
           
 var tinyIcon = wu_IconToTiny[icon];
          
+var backgroundcolor = "#FFAA55";
+          
+        
 
-          
-          
-          
 tempUnit = (useCelsius ? 'C' : 'F');        
           
 // Create the regular update pin
@@ -350,7 +343,7 @@ tempUnit = (useCelsius ? 'C' : 'F');
             "layout": {
               "type": "weatherPin",
               "title": resp.current_observation.weather,
-              "backgroundColor": "#FFAA55",
+              "backgroundColor": backgroundcolor,
               //"subtitle" : max + '/' + min,
               "subtitle": temp + '°',
               "locationName": city,
@@ -391,6 +384,8 @@ tempUnit = (useCelsius ? 'C' : 'F');
             
           });
  */         
+        
+/*          
           var rain_pin = "";
           var i = 1;
           var rain_found = false;
@@ -405,14 +400,15 @@ tempUnit = (useCelsius ? 'C' : 'F');
                 temp = Math.round((useCelsius ? resp.hourly_forecast[i].temp.metric : resp.hourly_forecast[i].temp.english));
                 icon = resp.hourly_forecast[i].icon_url.match(/\/([^.\/]*)\.gif/)[1];
                 tinyIcon = wu_IconToTiny[icon];
-                
+
+                backgroundcolor = "#AAFFFF";
                 rain_pin = {
                   "id": "rain-pin-0",
                   "time": date.toISOString(),
                   "layout": {
                   "type": "weatherPin",
                   "title": resp.hourly_forecast[i].condition,
-                  "backgroundColor": "#AAFFAA",
+                  "backgroundColor": backgroundcolor,
                   "subtitle": temp + '°',
                   "locationName": city,
                   "tinyIcon": tinyIcon,
@@ -441,7 +437,7 @@ tempUnit = (useCelsius ? 'C' : 'F');
                 console.log('Result: ' + responseText);
               }); 
         }
-          
+*/          
             sendData(temp, max, min, condition);
 
         } catch(ex) {
@@ -460,34 +456,36 @@ tempUnit = (useCelsius ? 'C' : 'F');
 
 function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
     var url = 'http://api.openweathermap.org/data/2.5/weather?appid=979cbf006bf67bc368a54af240d15cf3';
-  // KAH 3/4/2016
-    var urlForecast = 'http://api.openweathermap.org/data/2.5/forecast/daily?appid=979cbf006bf67bc368a54af240d15cf3&format=json&cnt=3'; 
-    
+    var urlForecast = 'http://api.openweathermap.org/data/2.5/forecast/daily?appid=979cbf006bf67bc368a54af240d15cf3&format=json&cnt=3';
+
     if (!overrideLocation) {
         url += '&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude;
-        urlForecast += '&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude; 
+        urlForecast += '&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude;
     } else {
         url += '&q=' + encodeURIComponent(overrideLocation);
-        urlForecast += '&q=' + encodeURIComponent(overrideLocation); 
+        urlForecast += '&q=' + encodeURIComponent(overrideLocation);
     }
 
-  
     console.log(url);
+    console.log(urlForecast);
 
     xhrRequest(url, 'GET', function(responseText) {
         try {
+            console.log('Retrieving current weather from OpenWeatherMap');
             var resp = JSON.parse(responseText);
             var temp = useCelsius ? kelvinToCelsius(resp.main.temp) : kelvinToFahrenheit(resp.main.temp);
-            //var max = useCelsius ? kelvinToCelsius(resp.main.temp_max) : kelvinToFahrenheit(resp.main.temp_max);
-            //var min = useCelsius ? kelvinToCelsius(resp.main.temp_min) : kelvinToFahrenheit(resp.main.temp_min);
             var condition = ow_iconToId[resp.weather[0].icon];
-            var location = resp.name;
-            var wind = resp.wind.speed;
-          
-            var day = new Date(resp.dt * 1000); 
+            var day = new Date(resp.dt * 1000);
             if (typeof(condition) === 'undefined') {
                 condition = 0;
             }
+            var max = useCelsius ? kelvinToCelsius(resp.main.temp_max) : kelvinToFahrenheit(resp.main.temp_max);
+            var min = useCelsius ? kelvinToCelsius(resp.main.temp_min) : kelvinToFahrenheit(resp.main.temp_min);
+
+            var location = resp.name;
+            var wind = resp.wind.speed;
+          
+
           
           var date = new Date();
           date.setHours(date.getHours());      
@@ -499,7 +497,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
             "time": date.toISOString(),
             "layout": {
               "type": "weatherPin",
-              "title": "Update",
+              "title": resp.weather[0].main,
               "locationName": location,
               "backgroundColor": "#FFAA55",
               //"subtitle" : max + '/' + min,
@@ -519,54 +517,38 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
             console.log('Result: ' + responseText);
           });
          
-            
-            //sendData(temp, max, min, condition);
-          // KAH 3/4/2016
-           +            xhrRequest(urlForecast, 'GET', function(forecastRespText) {  
-                try {  
-                    console.log('Retrieving forecast data from OpenWeatherMap');  
-                    var fResp = JSON.parse(forecastRespText);  
-  
-                   var max = useCelsius ? kelvinToCelsius(fResp.list[0].temp.max) : kelvinToFahrenheit(fResp.list[0].temp.max);  
-                    var min = useCelsius ? kelvinToCelsius(fResp.list[0].temp.min) : kelvinToFahrenheit(fResp.list[0].temp.min);  
-  
-                   for (var fIndex in fResp.list) {  
-                        var fDay = new Date(fResp.list[fIndex].dt * 1000);  
-                         if (day.getUTCDate() === fDay.getUTCDate()) {  
-                            console.log(JSON.stringify(fResp.list[fIndex]));  
-                           max = useCelsius ? kelvinToCelsius(fResp.list[fIndex].temp.max) : kelvinToFahrenheit(fResp.list[fIndex].temp.max);  
-                            min = useCelsius ? kelvinToCelsius(fResp.list[fIndex].temp.min) : kelvinToFahrenheit(fResp.list[fIndex].temp.min);  
-                       }  
-                   }  
-  
-                    sendData(temp, max, min, condition);  
-                } catch (ex) {  
-                    console.log('Failure requesting forecast data from OpenWeatherMap');  
-                    console.log(ex.stack);  
-               }  
-            });  
+            xhrRequest(urlForecast, 'GET', function(forecastRespText) {
+                try {
+                    console.log('Retrieving forecast data from OpenWeatherMap');
+                    var fResp = JSON.parse(forecastRespText);
 
+                    var max = useCelsius ? kelvinToCelsius(fResp.list[0].temp.max) : kelvinToFahrenheit(fResp.list[0].temp.max);
+                    var min = useCelsius ? kelvinToCelsius(fResp.list[0].temp.min) : kelvinToFahrenheit(fResp.list[0].temp.min);
+
+                    for (var fIndex in fResp.list) {
+                        var fDay = new Date(fResp.list[fIndex].dt * 1000);
+                        if (day.getUTCDate() === fDay.getUTCDate()) {
+                            console.log(JSON.stringify(fResp.list[fIndex]));
+                            max = useCelsius ? kelvinToCelsius(fResp.list[fIndex].temp.max) : kelvinToFahrenheit(fResp.list[fIndex].temp.max);
+                            min = useCelsius ? kelvinToCelsius(fResp.list[fIndex].temp.min) : kelvinToFahrenheit(fResp.list[fIndex].temp.min);
+                        }
+                    }
+
+                    sendData(temp, max, min, condition);
+                } catch (ex) {
+                    console.log('Failure requesting forecast data from OpenWeatherMap');
+                    console.log(ex.stack);
+                }
+            });
 
         } catch (ex) {
-             console.log('Failure requesting current weather from OpenWeatherMap'); 
+            console.log('Failure requesting current weather from OpenWeatherMap');
             console.log(ex.stack);
         }
     });
 }
 
 
-
-function sendUpdateData(updateAvailable) {
-    console.log(updateAvailable ? 'Update available!' : 'No updates.');
-    Pebble.sendAppMessage({'KEY_HASUPDATE': updateAvailable},
-        function(e) {
-            console.log('Sent update data to Pebble successfully!');
-        },
-        function(e) {
-            console.log('Error sending update data to Pebble!');
-        }
-    );
-}
 
 function kelvinToCelsius(temp) {
     return Math.round(temp - 273.15);
@@ -582,7 +564,7 @@ function sendData(temp, max, min, condition) {
         'KEY_MAX': max,
         'KEY_MIN': min,
         'KEY_WEATHER': condition
-    }
+    };
 
     console.log(JSON.stringify(data));
 
@@ -645,7 +627,7 @@ var sendError = function() {
             console.log('Error sending empty state to Pebble!');
         }
     );
-}
+};
 
 var wu_iconToId = {
     'unknown': 0,
@@ -695,10 +677,10 @@ var wu_IconToTiny = {
     'clear': "system://images/TIMELINE_SUN",
     'sunny': "system://images/TIMELINE_SUN",
     'partlycloudy': "system://images/PARTLY_CLOUDY",
-    'mostlycloudy': "system://images/TIMELINE_WEATHER",
+    'mostlycloudy': "system://images/CLOUDY_DAY",
     'mostlysunny': "system://images/PARTLY_CLOUDY",
     'partlysunny': "system://images/PARTLY_CLOUDY",
-    'cloudy': "system://images/TIMELINE_WEATHER",
+    'cloudy': "system://images/CLOUDY_DAY",
     'rain': "system://images/HEAVY_RAIN",
     'snow': "system://images/HEAVY_SNOW",
     'tstorms': "system://images/HEAVY_RAIN",

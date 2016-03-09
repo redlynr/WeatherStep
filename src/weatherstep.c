@@ -29,7 +29,7 @@ static void update_time() {
     char tz_text[22];
     char hour_text[13];
     char date_text[13];
-    char hour_text2[13];
+
 
     // Write the current hours and minutes into a buffer
     strftime(hour_text, sizeof(hour_text), (clock_is_24h_style() ? "%H:%M" : "%I:%M"), tick_time);
