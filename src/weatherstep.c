@@ -106,7 +106,8 @@ static void battery_update_proc(Layer *layer, GContext *ctx) {
   int width = (int)(float)(((float)s_battery_level / 100.0F) * parent_bounds);
   
   // Draw the background
-  graphics_context_set_fill_color(ctx, GColorDarkGray);
+  //graphics_context_set_fill_color(ctx, GColorDarkGray);
+  graphics_context_set_fill_color(ctx, GColorFromHEX(persist_read_int(KEY_BATTERYBACKCOLOR)));
   graphics_fill_rect(ctx, bounds, GCornerNone, 0);
   
   // Draw the battery bar  
@@ -307,6 +308,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         uint32_t bat_c = batteryColor->value->int32;
         persist_write_int(KEY_BATTERYCOLOR, bat_c);
     }
+  
 
     Tuple *batteryLowColor = dict_find(iterator, KEY_BATTERYLOWCOLOR);
     if (batteryLowColor) {
@@ -409,6 +411,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         bool bigTemp = useBigTemp->value->int8;
         persist_write_int(KEY_USEBIGTEMP, bigTemp);
     }
+  
+    Tuple *batteryBackColor = dict_find(iterator, KEY_BATTERYBACKCOLOR);
+    if (batteryBackColor) {
+        uint32_t batb_c = batteryBackColor->value->int32;
+        persist_write_int(KEY_BATTERYBACKCOLOR, batb_c);
+    }
+  
   
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Configs persisted. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     destroy_text_layers();

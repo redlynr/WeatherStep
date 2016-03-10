@@ -1,6 +1,7 @@
 {
     "appKeys": {
         "KEY_ALTHOURSCOLOR": 15,
+        "KEY_BATTERYBACKCOLOR": 42,
         "KEY_BATTERYCOLOR": 16,
         "KEY_BATTERYLOWCOLOR": 17,
         "KEY_BGCOLOR": 11,
@@ -161,7 +162,7 @@
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "4.50",
+    "versionLabel": "4.60",
     "watchapp": {
         "watchface": true
     }
