@@ -477,9 +477,9 @@ static void watchface_unload(Window *window) {
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     update_time();
-    bool is_sleeping = is_user_sleeping();
+    //bool is_sleeping = is_user_sleeping();
 
-    show_sleep_data_if_visible();
+    //show_sleep_data_if_visible();
 
     bool update_enabled = persist_exists(KEY_UPDATE) ? persist_read_int(KEY_UPDATE) : true;
 
@@ -490,8 +490,9 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
         notify_update(false);
     }
 
-    uint8_t tick_interval = is_sleeping ? 60 : 30;
-
+    //uint8_t tick_interval = is_sleeping ? 60 : 30;
+    uint8_t tick_interval = 30;
+  
     if((tick_time->tm_min % tick_interval == 0) && is_weather_enabled()) {
         update_weather();
     }
