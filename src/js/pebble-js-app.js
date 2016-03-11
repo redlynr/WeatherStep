@@ -464,7 +464,11 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
             
             var desc = results.condition.text;
             
+var headings = ["Powered by"];
+var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWind Chill: ' + feelslike + '°\nWind Speed: ' + wind +  '\n';
+var paragraphs = ["Yahoo"];
           
+                    
                
  // Create the pin
           var pin = {
@@ -478,7 +482,10 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) {
               "subtitle": temp + '°',
               "locationName": city,
               "tinyIcon": "system://images/TIMELINE_WEATHER",
-              "body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind Chill: ' + feelslike + '°\n\nWind Speed: ' + wind +  '\n\n' + desc + '\n\n' + 'Weather Data provided by Yanoo \n\n'
+              //"body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind Chill: ' + feelslike + '°\n\nWind Speed: ' + wind +  '\n\n' + desc + '\n\n' + 'Weather Data provided by Yanoo \n\n'
+              "body":current,
+              "headings":headings,
+              "paragraphs":paragraphs
             }
           };
           
@@ -623,6 +630,13 @@ var backgroundcolor = "#FFAA55";
 
 tempUnit = (useCelsius ? 'C' : 'F');        
           
+         
+var headings = ["Forecast", "Powered by"];
+var current = 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip;
+var paragraphs = [desc,"Weather Underground"];
+          
+          
+          
 // Create the regular update pin
           var pin = {
             "id": "weather-pin-0",
@@ -637,7 +651,10 @@ tempUnit = (useCelsius ? 'C' : 'F');
               //"tinyIcon": "system://images/TIMELINE_WEATHER",
               "tinyIcon": tinyIcon,
               //"body": 'Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
-              "body": 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip + '\n\nForecast: \n' + desc + '\n\n' + 'Weather Data provided:\nby Weather Underground \n\n'
+              //"body": 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip + '\n\nForecast: \n' + desc + '\n\n' + 'Weather Data provided:\nby Weather Underground \n\n'
+              "body":current,
+              "headings": headings,
+              "paragraphs": paragraphs
             }
           };
           
@@ -787,7 +804,9 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
                             min = useCelsius ? kelvinToCelsius(fResp.list[fIndex].temp.min) : kelvinToFahrenheit(fResp.list[fIndex].temp.min);
                         }
                     }
-     
+var headings = ["Powered by"];
+var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n';
+var paragraphs = ["Open Weather"];
                   // Create the pin
           var pin = {
             "id": "weather-pin-0",
@@ -801,7 +820,10 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
               "subtitle": temp + '°',
               "tinyIcon": "system://images/TIMELINE_WEATHER",
               //"body": 'Temp: ' + temp + '°' + tempUnit + '\n Feels like: ' + feelslike + '°' + tempUnit + '\n Wind: ' + wind + '\n Dewpoint: ' + dewpoint + tempUnit + '\n\n Today\'s Forecast: \n' + desc   
-              "body": 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n' + 'Weather Data provided by Open Weather \n\n'
+              //"body": 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n' + 'Weather Data provided by Open Weather \n\n'
+              "body": current + "\n\n",
+              "headings": headings,
+              "paragraphs": paragraphs
             }
           };
           
