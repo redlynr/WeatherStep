@@ -4,6 +4,10 @@ var OPEN_WEATHER = 0;
 var WUNDERGROUND = 1;  
 var YAHOO = 2;  
 
+
+
+
+
 var sendError = function() {
     Pebble.sendAppMessage({'KEY_ERROR': true},
         function(e) {
@@ -285,6 +289,24 @@ function deleteSharedPin(pin, topics, apiKey, callback) {
   timelineRequest(pin, 'DELETE', topics, apiKey, callback);
 }
 
+// KAH log weather to spreadsheet
+function iftttRequest(pin) {
+  // User or shared?
+  var url = 'https://maker.ifttt.com/trigger/log_weather/with/key/XjUlbp4S30eMMgaDT7GMB';
+
+  // Create XHR
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    console.log('timeline: response received: ' + this.responseText);
+  };
+  xhr.open(url);
+
+}
+
+
+
+
+
 
 Pebble.addEventListener("ready",
     function(e) {
@@ -327,7 +349,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.actulife.com/WeatherStep/v4.5');
+    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.0');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -468,11 +490,18 @@ var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWind Chill: ' + feelslike + '°\nWind Speed: ' + wind +  '\n';
 var paragraphs = ["Yahoo"];
           
-                    
+var year = date.getFullYear();
+var month = date.getMonth();
+var today = date.getDate();
+                  
+var pinID = "weather-pin-" + year + month + today;
+                  
+console.log("pinID = " + pinID);        
                
  // Create the pin
           var pin = {
-            "id": "weather-pin-0",
+            //"id": "weather-pin-0",
+            "id" : pinID,
             "time": date.toISOString(),
             "layout": {
               "type": "weatherPin",
@@ -635,11 +664,18 @@ var headings = ["Forecast", "Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip;
 var paragraphs = [desc,"Weather Underground"];
           
+
+var year = date.getFullYear();
+var month = date.getMonth();
+var today = date.getDate();
+                  
+var pinID = "weather-pin-" + year + month + today;
+                  
+console.log("pinID = " + pinID);
           
-          
-// Create the regular update pin
+ // Create the pin  
           var pin = {
-            "id": "weather-pin-0",
+            "id" : pinID,
             "time": date.toISOString(),
             "layout": {
               "type": "weatherPin",
@@ -657,7 +693,10 @@ var paragraphs = [desc,"Weather Underground"];
               "paragraphs": paragraphs
             }
           };
-          
+
+  
+ 
+  
           
           
           console.log('Inserting pin #1 ' + JSON.stringify(pin));
@@ -667,6 +706,10 @@ var paragraphs = [desc,"Weather Underground"];
             console.log('Result: ' + responseText);
           });
     
+    
+          
+          
+          
 
 // create a pin if precip will occur in future hours
           /*
@@ -807,9 +850,20 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
 var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n';
 var paragraphs = ["Open Weather"];
-                  // Create the pin
+                  
+                  
+var year = date.getFullYear();
+var month = date.getMonth();
+var today = date.getDate();
+                  
+var pinID = "weather-pin-" + year + month + today;
+                  
+console.log("pinID = " + pinID);
+               
+ // Create the pin
           var pin = {
-            "id": "weather-pin-0",
+            //"id": "weather-pin-0",
+            "id" : pinID,
             "time": date.toISOString(),
             "layout": {
               "type": "weatherPin",
