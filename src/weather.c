@@ -4,6 +4,7 @@
 
 static bool weather_enabled;
 static bool use_celsius; // KAH 2/26/2016
+static int weather_pins;
 static char weather_key_buffer[20]; // KAH 2/26/2016
 static bool health_enabled;
 
@@ -80,6 +81,8 @@ void update_weather(void) {
   //  APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting weather with key (%s) %d", weather_key_buffer, (int)time(NULL));
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting weather. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL)); 
     dict_write_uint8(iter, KEY_USECELSIUS, use_celsius);
+    dict_write_uint8(iter, KEY_WEATHERPINS, weather_pins);
+APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c Weather2 Pin %d", weather_pins);   
  //   dict_write_cstring(iter, KEY_WEATHERKEY, weather_key_buffer);
     app_message_outbox_send();
 }
@@ -153,7 +156,9 @@ void toggle_weather(bool from_configs) {
             weather_key_buffer[0] = '\0';
         }
         use_celsius = persist_exists(KEY_USECELSIUS) && persist_read_int(KEY_USECELSIUS);
-        // KAH 2/26/2016
+        weather_pins = persist_exists(KEY_WEATHERPINS) && persist_read_int(KEY_WEATHERPINS);
+APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c Weather1 Pin %d", weather_pins); 
+
       
       
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather is enabled. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));

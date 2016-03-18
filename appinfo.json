@@ -39,6 +39,7 @@
         "KEY_WEATHER": 3,
         "KEY_WEATHERCOLOR": 18,
         "KEY_WEATHERKEY": 8,
+        "KEY_WEATHERPINS": 43,
         "KEY_WEATHERPROVIDER": 40,
         "KEY_YAHOOKEY": 41
     },
@@ -162,7 +163,7 @@
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "5.0",
+    "versionLabel": "5.11",
     "watchapp": {
         "watchface": true
     }

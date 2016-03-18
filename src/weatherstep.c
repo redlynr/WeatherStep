@@ -398,6 +398,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     if (dateFormat) {
         uint8_t dateformat_v = dateFormat->value->int8;
         persist_write_int(KEY_DATEFORMAT, dateformat_v);
+ 
+      
     }
   
    Tuple *leadingZero = dict_find(iterator, KEY_NOLEADINGZERO);
@@ -418,6 +420,14 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         persist_write_int(KEY_BATTERYBACKCOLOR, batb_c);
     }
   
+    Tuple *weatherPins = dict_find(iterator, KEY_WEATHERPINS);
+    if (weatherPins) {
+        uint8_t weatherPins_v = weatherPins->value->int8;
+        persist_write_int(KEY_WEATHERPINS, weatherPins_v);
+      
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather Pin %d", weatherPins_v);     
+      
+    } 
   
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Configs persisted. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     destroy_text_layers();
@@ -481,14 +491,14 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
     //show_sleep_data_if_visible();
 
-    bool update_enabled = persist_exists(KEY_UPDATE) ? persist_read_int(KEY_UPDATE) : true;
+//    bool update_enabled = persist_exists(KEY_UPDATE) ? persist_read_int(KEY_UPDATE) : true;
 
-    if (update_enabled && tick_time->tm_hour == 4) { // updates at 4am
-        check_for_updates();
-    }
-    if (!update_enabled) {
-        notify_update(false);
-    }
+//    if (update_enabled && tick_time->tm_hour == 4) { // updates at 4am
+//        check_for_updates();
+//    }
+//    if (!update_enabled) {
+//        notify_update(false);
+//    }
 
     //uint8_t tick_interval = is_sleeping ? 60 : 30;
     uint8_t tick_interval = 30;

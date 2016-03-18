@@ -330,6 +330,8 @@ Pebble.addEventListener('appmessage',
         } else {
             console.log('Fetching weather info...');
 //            getWeather(localStorage['weatherKey'], parse(localStorage['useCelsius'].toLowerCase()), localStorage['overrideLocation']);
+            var weatherPins = parseInt(localStorage.weatherPins,10);
+console.log ('setting weatherPins ' + weatherPins);
             var weatherKey = localStorage.weatherKey;  
             var provider = weatherKey ? 1 : 0;  
             if (localStorage.weatherProvider) {  
@@ -342,14 +344,14 @@ Pebble.addEventListener('appmessage',
                         weatherKey = '';  
                 }  
             }  
-            getWeather(provider, weatherKey, parse(localStorage.useCelsius.toLowerCase()), localStorage.overrideLocation);  
+            getWeather(provider, weatherKey, parse(localStorage.useCelsius.toLowerCase()), localStorage.overrideLocation, weatherPins);  
           
         }
     }                     
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.0');
+    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.1');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -370,7 +372,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
             dict[key + 'MINUTES'] = parseInt(value.split('|')[1].split(':')[1], 10);
             value = parseInt(newValue, 10);
         }
-        if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER') {
+        if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_WEATHERPINS' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER'  ){
             value = parseInt(value, 10);
         }
         dict[key] = value;
@@ -382,6 +384,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
     localStorage['useBigTemp'] = dict['KEY_USEBIGTEMP'];
     localStorage['weatherKey'] = dict['KEY_WEATHERKEY'];
     localStorage['overrideLocation'] = dict['KEY_OVERRIDELOCATION'];
+    localStorage['weatherPins'] = dict['KEY_WEATHERPINS'];
+  
     localStorage.weatherProvider = dict.KEY_WEATHERPROVIDER;  
     localStorage.yahooKey = dict.KEY_YAHOOKEY;  
     delete dict.KEY_WEATHERKEY;  
@@ -401,19 +405,19 @@ function parse(type) {
     return typeof type == 'string' ? JSON.parse(type) : type;
 }
 
-function locationSuccess(pos, provider, weatherKey, useCelsius, overrideLocation) {
+function locationSuccess(pos, provider, weatherKey, useCelsius, overrideLocation, weatherPins) {
   console.log(overrideLocation);
   console.log("Retrieving weather info");
   
 switch (provider) {  
         case OPEN_WEATHER:  
-            fetchOpenWeatherMapData(pos, useCelsius, overrideLocation);  
+            fetchOpenWeatherMapData(pos, useCelsius, overrideLocation, weatherPins);  
             break;  
         case WUNDERGROUND:  
-            fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocation);  
+            fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocation, weatherPins);  
             break;  
         case YAHOO:  
-            fetchYahooData(pos, useCelsius, overrideLocation);  
+            fetchYahooData(pos, useCelsius, overrideLocation, weatherPins);  
             break;  
     }  
 }  
@@ -435,7 +439,7 @@ function locationError(err) {
   }
 }
 
-function executeYahooQuery(pos, useCelsius, woeid, overrideLocation) { 
+function executeYahooQuery(pos, useCelsius, woeid, overrideLocation, weatherPins) { 
      var url = 'https://query.yahooapis.com/v1/public/yql?format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&q='; 
      var woeidQuery = ''; 
      if (overrideLocation) { 
@@ -493,10 +497,24 @@ var paragraphs = ["Yahoo"];
 var year = date.getFullYear();
 var month = date.getMonth();
 var today = date.getDate();
+var hours = date.getHours();
+var minutes = date.getMinutes();
                   
-var pinID = "weather-pin-" + year + month + today;
-                  
-console.log("pinID = " + pinID);        
+var pinID = 'weather-pin-';
+          
+console.log("weatherPins " +weatherPins);
+
+if (weatherPins === 0){
+  pinID = pinID + year + month + today;
+}
+    
+if (weatherPins === 1) {
+  pinID = pinID + year + month + today + hours;
+}
+
+if (weatherPins === 2){
+ pinID = pinID + year + month + today + hours + minutes;
+}     
                
  // Create the pin
           var pin = {
@@ -599,7 +617,7 @@ function getWoeidAndExecuteQuery(pos, useCelsius) {
 
 
 
-function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocation) {
+function fetchWeatherUndergroundData(pos, weatherKey, useCelsius, overrideLocation, weatherPins) {
     var url = 'http://api.wunderground.com/api/' + weatherKey + '/conditions/forecast/hourly/q/';
     if (!overrideLocation) {
         url += pos.coords.latitude + ',' + pos.coords.longitude + '.json';
@@ -668,9 +686,25 @@ var paragraphs = [desc,"Weather Underground"];
 var year = date.getFullYear();
 var month = date.getMonth();
 var today = date.getDate();
+var hours = date.getHours();
+var minutes = date.getMinutes();
                   
-var pinID = "weather-pin-" + year + month + today;
-                  
+var pinID = 'weather-pin-';
+          
+console.log("weatherPins " +weatherPins);
+
+if (weatherPins === 0){
+  pinID = pinID + year + month + today;
+}
+    
+if (weatherPins === 1) {
+  pinID = pinID + year + month + today + hours;
+}
+
+if (weatherPins === 2){
+ pinID = pinID + year + month + today + hours + minutes;
+}   
+          
 console.log("pinID = " + pinID);
           
  // Create the pin  
@@ -801,7 +835,7 @@ console.log("pinID = " + pinID);
     });
 }
 
-function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation) {
+function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation, weatherPins) {
     var url = 'http://api.openweathermap.org/data/2.5/weather?appid=979cbf006bf67bc368a54af240d15cf3';
     var urlForecast = 'http://api.openweathermap.org/data/2.5/forecast/daily?appid=979cbf006bf67bc368a54af240d15cf3&format=json&cnt=3';
 
@@ -855,11 +889,25 @@ var paragraphs = ["Open Weather"];
 var year = date.getFullYear();
 var month = date.getMonth();
 var today = date.getDate();
+var hours = date.getHours();
+var minutes = date.getMinutes();
                   
-var pinID = "weather-pin-" + year + month + today;
+var pinID = 'weather-pin-';
+          
+console.log("weatherPins " +weatherPins);
+
+if (weatherPins === 0){
+  pinID = pinID + year + month + today;
+}
+    
+if (weatherPins === 1) {
+  pinID = pinID + year + month + today + hours;
+}
+
+if (weatherPins === 2){
+ pinID = pinID + year + month + today + hours + minutes;
+}   
                   
-console.log("pinID = " + pinID);
-               
  // Create the pin
           var pin = {
             //"id": "weather-pin-0",
@@ -938,19 +986,22 @@ function locationError(err) {
     console.log('Error requesting location!');
 }
 
-function getWeather(provider, weatherKey, useCelsius, overrideLocation) {
-    console.log('Requesting weather: ' + provider + ', ' + weatherKey + ', ' + useCelsius + ', ' + overrideLocation);  
+function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherPins) {
+    console.log('Requesting weather: ' + provider + ', ' + weatherKey + ', ' + useCelsius + ', ' + overrideLocation+', ',weatherPins);  
     provider = provider || 0;  
 
     weatherKey = weatherKey || '';
     useCelsius = useCelsius || false;
     overrideLocation = overrideLocation || '';
+
+
+  
     if (overrideLocation) {
-        locationSuccess(null, provider, weatherKey, useCelsius, overrideLocation);
+        locationSuccess(null, provider, weatherKey, useCelsius, overrideLocation, weatherPins);
     } else {
         navigator.geolocation.getCurrentPosition(
             function(pos) {
-                locationSuccess(pos, provider, weatherKey, useCelsius, overrideLocation);
+                locationSuccess(pos, provider, weatherKey, useCelsius, overrideLocation, weatherPins);
             },
             locationError,
             {timeout: 15000, maximumAge: 60000}
