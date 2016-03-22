@@ -26,6 +26,7 @@
         "KEY_OVERRIDELOCATION": 31,
         "KEY_SHOWSLEEP": 6,
         "KEY_STEPSCOLOR": 22,
+        "KEY_STOCKS": 44,
         "KEY_TEMP": 0,
         "KEY_TEMPCOLOR": 19,
         "KEY_TIMEZONES": 10,
@@ -163,7 +164,7 @@
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "5.11",
+    "versionLabel": "5.20",
     "watchapp": {
         "watchface": true
     }

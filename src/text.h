@@ -3,6 +3,8 @@
 
 #include <pebble.h>
 
+void run_animation();
+
 void create_text_layers(Window*);
 
 void destroy_text_layers();
@@ -28,6 +30,7 @@ void set_weather_layer_text(char*);
 void set_max_icon_layer_text(char*);
 void set_min_icon_layer_text(char*);
 void set_update_layer_text(char*);
+
 
 
 #endif

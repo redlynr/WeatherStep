@@ -17,6 +17,17 @@ static signed int tz_hour;
 static uint8_t tz_minute;
 static char tz_name[TZ_LEN];
 
+// KAH 3/21/2016
+// when watch is shaken or tapped
+static void accel_tap_handler(AccelAxisType axis, int32_t direction) {   
+	
+  // Play the animation
+  run_animation();
+
+}
+
+
+
 static void update_time() {
     // Get a tm structure
     time_t temp = time(NULL);
@@ -523,7 +534,9 @@ static void init(void) {
     });
 
     battery_state_service_subscribe(battery_handler);
- 
+  
+    // KAH 3/21/2016
+    accel_tap_service_subscribe(&accel_tap_handler);
   
     window_stack_push(watchface, true);
 
@@ -546,6 +559,8 @@ static void init(void) {
 
 static void deinit(void) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Deinit start. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+    // KAH 3/21/2016
+    accel_tap_service_unsubscribe();
     window_destroy(watchface);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Deinit end. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
 }

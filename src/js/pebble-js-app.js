@@ -982,11 +982,134 @@ function sendData(temp, max, min, condition) {
     );
 }
 
+function sendStocksData(stockText) {
+    var data = {
+        'KEY_STOCKS': stockText
+    };
+
+    console.log(JSON.stringify(data));
+
+    Pebble.sendAppMessage(data,
+        function(e) {
+            console.log('Stocks info sent to Pebble successfully!');
+        },
+        function(e) {
+            console.log('Error sending stocks info to Pebble!');
+        }
+    );
+}
+
+
 function locationError(err) {
     console.log('Error requesting location!');
 }
 
+
+
+function executeYahooFinanceQuery() { 
+     var url = 'http://finance.yahoo.com/webservice/v1/symbols/^GSPC,^DJI/quote?format=json&view=detail';
+   
+ 
+ 
+    var stock_prices = '';
+ 
+ console.log("calling Yahoo Finance");
+ console.log(url); 
+         xhrRequest(url, function(responseText) { 
+             try { 
+                 var resp = JSON.parse(responseText); 
+               // KAH 3/4/2016
+               //  var now = new Date();  
+
+                 var stock_count = resp.count;
+                 var i = 1;
+                 for (i=0; i<stock_count; i++){
+                    stock_prices = stock_prices + resp.resources[i].fields.symbol + ' ' + resp.resources[i].fields.price + ' ' + resp.resources[i].fields.chg_percent + '%; ';
+                 }             
+              
+colsole.log("stock_princes",stock_prices);         
+  
+var pinID = 'stocks-pin-';
+          
+console.log("stocksPins " +pinID);
+
+/*           
+           
+if (weatherPins === 0){
+  pinID = pinID + year + month + today;
+}
+    
+if (weatherPins === 1) {
+  pinID = pinID + year + month + today + hours;
+}
+
+if (weatherPins === 2){
+ pinID = pinID + year + month + today + hours + minutes;
+}     
+               
+ // Create the pin
+          var pin = {
+            //"id": "weather-pin-0",
+            "id" : pinID,
+            "time": date.toISOString(),
+            "layout": {
+              "type": "weatherPin",
+              "title": desc,
+              "backgroundColor": "#FFAA55",
+              //"subtitle" : max + '/' + min,
+              "subtitle": temp + '°',
+              "locationName": city,
+              "tinyIcon": "system://images/TIMELINE_WEATHER",
+              //"body": 'Hi/Lo: ' + max + '°/' + min + '°\n\nWind Chill: ' + feelslike + '°\n\nWind Speed: ' + wind +  '\n\n' + desc + '\n\n' + 'Weather Data provided by Yanoo \n\n'
+              "body":current,
+              "headings":headings,
+              "paragraphs":paragraphs
+            }
+          };
+          
+          
+          
+          console.log('Inserting pin ' + JSON.stringify(pin));
+
+
+          insertUserPin(pin, function(responseText) { 
+            console.log('Result: ' + responseText);
+          });              
+               
+               
+*/               
+               
+ 
+                 sendStocksData(stock_prices); 
+             } catch (ex) { 
+                 console.log(ex); 
+
+             } 
+         }); 
+
+ } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherPins) {
+  
+    //temporary
+    console.log('Fetching stocks info...');
+    executeYahooFinanceQuery();
+  
+  
     console.log('Requesting weather: ' + provider + ', ' + weatherKey + ', ' + useCelsius + ', ' + overrideLocation+', ',weatherPins);  
     provider = provider || 0;  
 
@@ -1007,6 +1130,13 @@ function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherP
             {timeout: 15000, maximumAge: 60000}
         );
     }
+
+  
+  
+  
 }
+
+
+
 
 

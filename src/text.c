@@ -2,8 +2,12 @@
 #include "text.h"
 #include "keys.h"
 
+
+static char stocks_key_buffer[500];
+
 static TextLayer *hours;
 static TextLayer *date;
+static TextLayer *ticker_text;
 static TextLayer *alt_time;
 static TextLayer *battery;
 static TextLayer *bluetooth;
@@ -41,23 +45,12 @@ static char alt_time_text[22];
 static char steps_or_sleep_text[16];
 static char dist_or_deep_text[16];
 
+//animates layer by number of pixels
+PropertyAnimation *s_box_animation;
+
 static uint8_t loaded_font;
 
-uint8_t get_loaded_font() {
-    return loaded_font;
-}
-
-void create_text_layers(Window* window) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Creating text layers. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-    Layer *window_layer = window_get_root_layer(window);
-    GRect bounds = layer_get_bounds(window_layer);
-    // KAH - ignore requested font from settings
-    // int selected_font = BLOCKO_FONT;
-    
-    //if (persist_exists(KEY_FONTTYPE)) {
-    //    selected_font = persist_read_int(KEY_FONTTYPE);
-    //}
-    int width = bounds.size.w;
+    int width;
 
     int hours_top;
     int date_left;
@@ -69,6 +62,25 @@ void create_text_layers(Window* window) {
     int temp_min_max_top;
     int temp_icon_min_max_top;
     int update_top;
+
+uint8_t get_loaded_font() {
+    return loaded_font;
+}
+
+void create_text_layers(Window* window) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Creating text layers. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+    Layer *window_layer = window_get_root_layer(window);
+    GRect bounds = layer_get_bounds(window_layer);
+  
+  
+  
+    // KAH - ignore requested font from settings
+    // int selected_font = BLOCKO_FONT;
+    
+    //if (persist_exists(KEY_FONTTYPE)) {
+    //    selected_font = persist_read_int(KEY_FONTTYPE);
+    //}
+
 
 //    if (selected_font == BLOCKO_FONT) {
 //        hours_top = PBL_IF_ROUND_ELSE(46, 38);
@@ -105,6 +117,8 @@ void create_text_layers(Window* window) {
 //        temp_icon_min_max_top = PBL_IF_ROUND_ELSE(18, -2);
 //    } else {
 // KAH - disabled all but my selected font settings
+
+        width = bounds.size.w;
         hours_top = PBL_IF_ROUND_ELSE(53, 41);
         date_left = PBL_IF_ROUND_ELSE(0, -2);
         date_top = PBL_IF_ROUND_ELSE(100, 90);
@@ -124,7 +138,12 @@ void create_text_layers(Window* window) {
     date = text_layer_create(GRect(date_left, date_top, width, 50));
     text_layer_set_background_color(date, GColorClear);
     text_layer_set_text_alignment(date, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentCenter));
-    
+  
+    ticker_text = text_layer_create(GRect(date_left, date_top, 1000, 50));
+    text_layer_set_background_color(ticker_text, GColorClear);
+    text_layer_set_text_alignment(ticker_text, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
+    layer_set_hidden(text_layer_get_layer(ticker_text),true);
+  
     alt_time = text_layer_create(GRect(PBL_IF_ROUND_ELSE(0, -2), alt_top, width, 50));
     text_layer_set_background_color(alt_time, GColorClear);
     text_layer_set_text_alignment(alt_time, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentRight));
@@ -178,6 +197,12 @@ void create_text_layers(Window* window) {
   
     layer_add_child(window_layer, text_layer_get_layer(hours));
     layer_add_child(window_layer, text_layer_get_layer(date));
+  
+
+    layer_add_child(window_layer, text_layer_get_layer(ticker_text));
+ 
+//    text_layer_set_text(ticker_text, "This is where I want the stock ticker to show");
+  
     //layer_add_child(window_layer, text_layer_get_layer(alt_time));
     //layer_add_child(window_layer, text_layer_get_layer(battery));
     layer_add_child(window_layer, text_layer_get_layer(bluetooth));
@@ -197,6 +222,7 @@ void destroy_text_layers() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Destroying text layers. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     text_layer_destroy(hours);
     text_layer_destroy(date);
+    text_layer_destroy(ticker_text);
     text_layer_destroy(alt_time);
     text_layer_destroy(battery);
     text_layer_destroy(bluetooth);
@@ -279,6 +305,7 @@ void set_face_fonts() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Setting fonts. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     text_layer_set_font(hours, time_font);
     text_layer_set_font(date, base_font);
+    text_layer_set_font(ticker_text,base_font);
     text_layer_set_font(alt_time, base_font);
     text_layer_set_font(battery, base_font);
     text_layer_set_font(bluetooth, awesome_font);
@@ -299,6 +326,8 @@ void set_colors(Window *window) {
     bool enableAdvanced = persist_exists(KEY_ENABLEADVANCED) ? persist_read_int(KEY_ENABLEADVANCED) : false;
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Advanced colors %d", enableAdvanced);
     text_layer_set_text_color(date, 
+            enableAdvanced ? GColorFromHEX(persist_read_int(KEY_DATECOLOR)) : base_color);
+    text_layer_set_text_color(ticker_text, 
             enableAdvanced ? GColorFromHEX(persist_read_int(KEY_DATECOLOR)) : base_color);
     text_layer_set_text_color(alt_time, 
             enableAdvanced ? GColorFromHEX(persist_read_int(KEY_ALTHOURSCOLOR)) : base_color);
@@ -406,4 +435,59 @@ void set_min_icon_layer_text(char* text) {
 void set_update_layer_text(char* text) {
     strcpy(update_text, text);
     text_layer_set_text(update, update_text);
+}
+
+void anim_stopped_handler(Animation *animation, bool finished, void *context) {
+	
+   // Schedule the reverse animation, unless the app is exiting
+  if (finished) {
+    
+   APP_LOG(APP_LOG_LEVEL_DEBUG, "animation is finshed");  
+    
+  layer_set_hidden(text_layer_get_layer(ticker_text),true);  
+  layer_set_hidden(text_layer_get_layer(date),false);
+  }
+}
+
+void run_animation(){
+  // Play the Animation
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Let's run the animation");
+
+  if (persist_exists(KEY_STOCKS)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating stocks from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+          
+            persist_read_string(KEY_STOCKS, stocks_key_buffer, sizeof(stocks_key_buffer));
+            text_layer_set_text(ticker_text, stocks_key_buffer);
+  } else {
+    text_layer_set_text(ticker_text, "Unfortunately, no stocks :(");
+  }
+  
+ 
+  //layer_set_hidden(text_layer_get_layer(date),true);
+  layer_set_hidden(text_layer_get_layer(ticker_text),false);  
+  layer_set_hidden(text_layer_get_layer(date),true);
+  
+  int16_t ticker_pixels = text_layer_get_content_size(ticker_text).w;
+  
+  GRect start_frame = GRect(width, date_top, ticker_pixels, 50);
+  GRect finish_frame = GRect(-ticker_pixels, date_top, 1000, 50);
+ 
+  
+  s_box_animation = property_animation_create_layer_frame(text_layer_get_layer(ticker_text), &start_frame, &finish_frame);
+  animation_set_handlers((Animation*)s_box_animation, (AnimationHandlers) {
+    .stopped = anim_stopped_handler
+  }, NULL);
+  animation_set_duration((Animation*)s_box_animation, 10000 );
+  animation_set_curve((Animation*)s_box_animation, AnimationCurveLinear);
+  animation_set_delay((Animation*)s_box_animation, 0);
+
+  animation_schedule((Animation*)s_box_animation);
+  
+  //layer_set_hidden(text_layer_get_layer(ticker_text),true);
+  
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Animation has been scheduled");
+  
+ 
+ 
 }
