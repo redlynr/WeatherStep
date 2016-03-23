@@ -16,14 +16,25 @@ static Window *watchface;
 static signed int tz_hour;
 static uint8_t tz_minute;
 static char tz_name[TZ_LEN];
+static int shakeOption;
+
+void update_stocks(void);
 
 // KAH 3/21/2016
 // when watch is shaken or tapped
 static void accel_tap_handler(AccelAxisType axis, int32_t direction) {   
 	
   // Play the animation
-  run_animation();
-
+  
+  if (persist_exists(KEY_SHAKEACTION) && (int)persist_read_int(KEY_SHAKEACTION) > 0) { 
+     shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
+    if (shakeOption >= 48){
+      shakeOption = shakeOption - 48;
+    }
+    if (shakeOption > 0){
+      run_animation();
+    }
+  }
 }
 
 
@@ -207,25 +218,33 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         return;
     }
 
+    
+    
     Tuple *temp_tuple = dict_find(iterator, KEY_TEMP);
     Tuple *max_tuple = dict_find(iterator, KEY_MAX);
     Tuple *min_tuple = dict_find(iterator, KEY_MIN);
     Tuple *weather_tuple = dict_find(iterator, KEY_WEATHER);
-
+    Tuple *forecast_tuple = dict_find(iterator, KEY_FORECAST);
+    Tuple *stocks_tuple = dict_find(iterator, KEY_STOCKS);
+  
     if (temp_tuple && max_tuple && min_tuple && weather_tuple && is_weather_enabled()) {
         int temp_val = (int)temp_tuple->value->int32;
         int max_val = (int)max_tuple->value->int32;
         int min_val = (int)min_tuple->value->int32;
         int weather_val = (int)weather_tuple->value->int32;
-
+        char *forecast_val = forecast_tuple->value->cstring;
+        char *stocks_val = stocks_tuple->value->cstring;
+      
         update_weather_values(temp_val, max_val, min_val, weather_val);
-        store_weather_values(temp_val, max_val, min_val, weather_val); // KAH 2/26/2016
+        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_val, stocks_val); // KAH 2/26/2016
 
         get_health_data();
 
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather data updated. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
         return;
     }
+  
+   
 
     Tuple *enableHealth = dict_find(iterator, KEY_ENABLEHEALTH);
     if (enableHealth) {
@@ -435,10 +454,31 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     if (weatherPins) {
         uint8_t weatherPins_v = weatherPins->value->int8;
         persist_write_int(KEY_WEATHERPINS, weatherPins_v);
+    }
+  
+    Tuple *stocks = dict_find(iterator, KEY_STOCKS);
+    if (stocks) {
+        char* stocks_v= stocks->value->cstring;
+        persist_write_string(KEY_STOCKS, stocks_v);
+    }
+  
+  
+  
+    Tuple *shakeAction = dict_find(iterator, KEY_SHAKEACTION);
+    if (shakeAction) {
+        uint8_t shakeAction_v = shakeAction->value->int8;
+        persist_write_int(KEY_SHAKEACTION, shakeAction_v);  
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
+    }  
       
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather Pin %d", weatherPins_v);     
+       
       
-    } 
+    Tuple *stocksList = dict_find(iterator, KEY_STOCKSLIST);
+    if (stocksList) {
+        char* stocksList_v= stocksList->value->cstring;
+        persist_write_string(KEY_STOCKSLIST, stocksList_v);
+    }
+  
   
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Configs persisted. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     destroy_text_layers();
@@ -496,6 +536,25 @@ static void watchface_unload(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Unload end. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
 }
 
+
+void update_stocks(void) {
+    DictionaryIterator *iter;
+  
+   char stocks_key_buffer[500];
+   if (persist_exists(KEY_STOCKS)) {
+        persist_read_string(KEY_STOCKS, stocks_key_buffer, sizeof(stocks_key_buffer));
+    } else {
+        stocks_key_buffer[0] = '\0';
+    }
+  
+    app_message_outbox_begin(&iter);
+    dict_write_cstring(iter, KEY_STOCKS, stocks_key_buffer);
+ 
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting stocks. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL)); 
+  
+    app_message_outbox_send();
+}
+
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     update_time();
     //bool is_sleeping = is_user_sleeping();
@@ -516,7 +575,13 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
     if((tick_time->tm_min % tick_interval == 0) && is_weather_enabled()) {
         update_weather();
+
     }
+   //if(tick_time->tm_min % tick_interval == 0) {
+   //     update_stocks();
+   //}
+   
+  
 }
 
 

@@ -4,6 +4,7 @@
 
 
 static char stocks_key_buffer[500];
+static char forecast_key_buffer[500];
 
 static TextLayer *hours;
 static TextLayer *date;
@@ -21,6 +22,7 @@ static TextLayer *max_icon;
 static TextLayer *min_icon;
 static TextLayer *update;
 
+static int shakeOption;
 
 static GFont time_font;
 static GFont medium_font;
@@ -453,16 +455,44 @@ void run_animation(){
   // Play the Animation
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Let's run the animation");
 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  (int)persist_read_int(KEY_SHAKEACTION));
+  
+
+  
+ if (persist_exists(KEY_SHAKEACTION)){ 
+    shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
+    if (shakeOption >= 48){
+      shakeOption = shakeOption - 48;
+    }
+ }
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  shakeOption);
+  
+  if (persist_exists(KEY_SHAKEACTION) && shakeOption > 1) {  
+       
   if (persist_exists(KEY_STOCKS)) {
             APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating stocks from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-          
             persist_read_string(KEY_STOCKS, stocks_key_buffer, sizeof(stocks_key_buffer));
+    if(sizeof(stocks_key_buffer)>0){
             text_layer_set_text(ticker_text, stocks_key_buffer);
+    }
   } else {
     text_layer_set_text(ticker_text, "Unfortunately, no stocks :(");
   }
+  }
   
- 
+  if (persist_exists(KEY_SHAKEACTION) && shakeOption == 1) { 
+  if (persist_exists(KEY_FORECAST)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating forecast from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+          
+            persist_read_string(KEY_FORECAST, forecast_key_buffer, sizeof(forecast_key_buffer));
+    if(sizeof(forecast_key_buffer)>0){
+            text_layer_set_text(ticker_text, forecast_key_buffer);
+    }
+  } else {
+    text_layer_set_text(ticker_text, "Unfortunately, no forecast :(");
+  } 
+  }
+  
   //layer_set_hidden(text_layer_get_layer(date),true);
   layer_set_hidden(text_layer_get_layer(ticker_text),false);  
   layer_set_hidden(text_layer_get_layer(date),true);

@@ -4,8 +4,10 @@ var OPEN_WEATHER = 0;
 var WUNDERGROUND = 1;  
 var YAHOO = 2;  
 
+var shakeAction = 0;
+var stocksList = '';
 
-
+var stock_prices = '';
 
 
 var sendError = function() {
@@ -315,6 +317,9 @@ Pebble.addEventListener("ready",
 /* KAH 2/26/2016 
             getWeather(localStorage['weatherKey'], parse(localStorage['useCelsius'].toLowerCase()), localStorage['overrideLocation']);
 */
+          
+          //executeYahooFinanceQuery();
+          
         } else {
             sendError();
         }
@@ -327,11 +332,22 @@ Pebble.addEventListener('appmessage',
         if (e.payload.KEY_HASUPDATE) {
 //            console.log('Checking for updates...');
 //            checkForUpdates();
-        } else {
+        //} 
+        //else if (e.payload.KEY_STOCKS) {
+        //    console.log('Fetching stocks info...');
+        //    executeYahooFinanceQuery();
+
+        } else  {
             console.log('Fetching weather info...');
 //            getWeather(localStorage['weatherKey'], parse(localStorage['useCelsius'].toLowerCase()), localStorage['overrideLocation']);
             var weatherPins = parseInt(localStorage.weatherPins,10);
+          
 console.log ('setting weatherPins ' + weatherPins);
+          
+           shakeAction = parseInt(localStorage.shakeAction,10);
+console.log ('setting shakeAction ' + shakeAction);
+           stocksList = localStorage.stocksList;
+console.log ('setting stocksList ' + stocksList );          
             var weatherKey = localStorage.weatherKey;  
             var provider = weatherKey ? 1 : 0;  
             if (localStorage.weatherProvider) {  
@@ -345,13 +361,19 @@ console.log ('setting weatherPins ' + weatherPins);
                 }  
             }  
             getWeather(provider, weatherKey, parse(localStorage.useCelsius.toLowerCase()), localStorage.overrideLocation, weatherPins);  
-          
+            //executeYahooFinanceQuery();
         }
+
+      
     }                     
 );
 
+//Pebble.addEventListener('getstocks', function(e) {
+//  executeYahooFinanceQuery();
+//});
+  
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.1');
+    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.2');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -385,7 +407,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
     localStorage['weatherKey'] = dict['KEY_WEATHERKEY'];
     localStorage['overrideLocation'] = dict['KEY_OVERRIDELOCATION'];
     localStorage['weatherPins'] = dict['KEY_WEATHERPINS'];
-  
+    localStorage['shakeAction'] = dict['KEY_SHAKEACTION'];
+    localStorage['stocksList'] = dict['KEY_STOCKSLIST'];
     localStorage.weatherProvider = dict.KEY_WEATHERPROVIDER;  
     localStorage.yahooKey = dict.KEY_YAHOOKEY;  
     delete dict.KEY_WEATHERKEY;  
@@ -432,6 +455,7 @@ function locationError(err) {
     window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
 
     getWeather();
+    //executeYahooFinanceQuery();
     currentFailures++;
   } else {
     // until we get too many failures, at which point give up
@@ -492,6 +516,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation, weatherPins
             
 var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWind Chill: ' + feelslike + '°\nWind Speed: ' + wind +  '\n';
+var forecast_text = 'Hi/Lo: ' + max + '°/' + min + '° Wind Chill: ' + feelslike + '° Wind Speed: ' + wind;
 var paragraphs = ["Yahoo"];
           
 var year = date.getFullYear();
@@ -549,7 +574,8 @@ if (weatherPins === 2){
                
                
  
-                 sendData(temp, max, min, condition); 
+                 sendData(temp, max, min, condition, forecast_text, stock_prices); 
+                 
              } catch (ex) { 
                  console.log(ex); 
                  console.log('Yahoo weather failed, falling back to open weather'); 
@@ -679,9 +705,9 @@ tempUnit = (useCelsius ? 'C' : 'F');
           
          
 var headings = ["Forecast", "Powered by"];
-var current = 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip:' + precip;
+var current = 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip: ' + precip;
 var paragraphs = [desc,"Weather Underground"];
-          
+var forecast_text =   'Hi/Lo: ' + max + '°/' + min + '° Feels like: ' + feelslike + '°' + ' Dewpoint: ' + dewpoint + '°' + ' Wind: ' + wind + ' Precip: ' + precip;
 
 var year = date.getFullYear();
 var month = date.getMonth();
@@ -819,8 +845,8 @@ console.log("pinID = " + pinID);
               }); 
         }
 */          
-            sendData(temp, max, min, condition);
-
+            sendData(temp, max, min, condition, forecast_text, stock_prices);
+             
         } catch(ex) {
             //console.log(ex);
             //console.log('Falling back to OpenWeatherMap');
@@ -884,7 +910,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation, weatherPins)
 var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n';
 var paragraphs = ["Open Weather"];
-                  
+var forecast_text =  'Hi/Lo: ' + max + '°/' + min + '° WindSpeed: ' + wind;                 
                   
 var year = date.getFullYear();
 var month = date.getMonth();
@@ -938,7 +964,8 @@ if (weatherPins === 2){
             console.log('Result: ' + responseText);
           });
 
-                    sendData(temp, max, min, condition);
+                    sendData(temp, max, min, condition, forecast_text, stock_prices);
+                   
                 } catch (ex) {
                     console.log('Failure requesting forecast data from OpenWeatherMap');
                     console.log(ex.stack);
@@ -962,12 +989,14 @@ function kelvinToFahrenheit(temp) {
     return Math.round(temp * 1.8 - 459.67);
 }
 
-function sendData(temp, max, min, condition) {
+function sendData(temp, max, min, condition, forecast) {
     var data = {
         'KEY_TEMP': temp,
         'KEY_MAX': max,
         'KEY_MIN': min,
-        'KEY_WEATHER': condition
+        'KEY_WEATHER': condition,
+        'KEY_FORECAST': forecast,
+        'KEY_STOCKS': stock_prices
     };
 
     console.log(JSON.stringify(data));
@@ -982,22 +1011,6 @@ function sendData(temp, max, min, condition) {
     );
 }
 
-function sendStocksData(stockText) {
-    var data = {
-        'KEY_STOCKS': stockText
-    };
-
-    console.log(JSON.stringify(data));
-
-    Pebble.sendAppMessage(data,
-        function(e) {
-            console.log('Stocks info sent to Pebble successfully!');
-        },
-        function(e) {
-            console.log('Error sending stocks info to Pebble!');
-        }
-    );
-}
 
 
 function locationError(err) {
@@ -1007,27 +1020,49 @@ function locationError(err) {
 
 
 function executeYahooFinanceQuery() { 
-     var url = 'http://finance.yahoo.com/webservice/v1/symbols/^GSPC,^DJI/quote?format=json&view=detail';
-   
+     var url = '';
+console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);  
+     if (shakeAction > 2){
+      url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent('^GSPC,^DJI') +'/quote?format=json&view=detail';
+     } else {
+       url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) +'/quote?format=json&view=detail';
+     }
  
  
-    var stock_prices = '';
+
  
  console.log("calling Yahoo Finance");
  console.log(url); 
-         xhrRequest(url, function(responseText) { 
+         xhrRequest(url, 'GET',function(responseText) { 
              try { 
-                 var resp = JSON.parse(responseText); 
+                 var resp = JSON.parse(responseText).list; 
                // KAH 3/4/2016
                //  var now = new Date();  
-
-                 var stock_count = resp.count;
+               
+               //console.log('Count ' + resp.meta.count);
+               //console.log('ctock 1 ' +resp.resources[1].resource.fields.symbol );
+                stock_prices = '';
+               var stock_count = resp.meta.count;
                  var i = 1;
-                 for (i=0; i<stock_count; i++){
-                    stock_prices = stock_prices + resp.resources[i].fields.symbol + ' ' + resp.resources[i].fields.price + ' ' + resp.resources[i].fields.chg_percent + '%; ';
+                 for (i=0; i< stock_count; i++){
+                    var symbol = resp.resources[i].resource.fields.symbol;
+                    if (symbol == '^DJI'){
+                      symbol = 'DJIA';
+                    }
+                   if (symbol == '^GSPC') {
+                     symbol = 'S&P500';
+                   }
+                   var price = Math.round(resp.resources[i].resource.fields.price*100)/100;
+                   
+                   var change = Math.round(resp.resources[i].resource.fields.chg_percent*100)/100;
+                   if(change>0){
+                     change = '+' + change;
+                   }
+                   
+                  stock_prices = stock_prices + symbol + ' ' + price + ' ' + change + '%; ';
                  }             
               
-colsole.log("stock_princes",stock_prices);         
+console.log("stock_prices",stock_prices);         
   
 var pinID = 'stocks-pin-';
           
@@ -1080,10 +1115,11 @@ if (weatherPins === 2){
 */               
                
  
-                 sendStocksData(stock_prices); 
+                 //sendStocksData(stock_prices); 
+               
              } catch (ex) { 
                  console.log(ex); 
-
+                 console.log('problems with stocks');
              } 
          }); 
 
@@ -1106,9 +1142,12 @@ if (weatherPins === 2){
 function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherPins) {
   
     //temporary
-    console.log('Fetching stocks info...');
-    executeYahooFinanceQuery();
-  
+    //console.log('Fetching stocks info...');
+    // will populate stock_prices
+    console.log ('getWeather - shakeAction ' +shakeAction);
+    if (shakeAction > 1 ) {
+      executeYahooFinanceQuery();
+    }
   
     console.log('Requesting weather: ' + provider + ', ' + weatherKey + ', ' + useCelsius + ', ' + overrideLocation+', ',weatherPins);  
     provider = provider || 0;  
