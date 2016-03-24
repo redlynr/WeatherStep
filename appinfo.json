@@ -90,9 +90,9 @@
                 "type": "png-trans"
             },
             {
-                "characterRegex": "[\uf058\uf044]",
+                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
                 "file": "fonts/weathericons-regular-webfont.ttf",
-                "name": "FONT_WEATHER_28",
+                "name": "FONT_WEATHER_34",
                 "targetPlatforms": null,
                 "type": "font"
             },
@@ -104,25 +104,22 @@
                 "type": "font"
             },
             {
-                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
+                "characterRegex": "[\uf058\uf044]",
                 "file": "fonts/weathericons-regular-webfont.ttf",
-                "name": "FONT_WEATHER_34",
+                "name": "FONT_WEATHER_28",
                 "targetPlatforms": null,
                 "type": "font"
             },
             {
-                "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_46",
-                "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
-                ],
+                "characterRegex": "[\uf294\uf102]",
+                "compatibility": "2.7",
+                "file": "fonts/fontawesome-webfont.ttf",
+                "name": "FONT_AWESOME_18",
                 "type": "font"
             },
             {
                 "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_20",
+                "name": "FONT_PERFECT_DOS_35",
                 "targetPlatforms": [
                     "aplite",
                     "basalt",
@@ -142,7 +139,7 @@
             },
             {
                 "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_35",
+                "name": "FONT_PERFECT_DOS_20",
                 "targetPlatforms": [
                     "aplite",
                     "basalt",
@@ -151,10 +148,13 @@
                 "type": "font"
             },
             {
-                "characterRegex": "[\uf294\uf102]",
-                "compatibility": "2.7",
-                "file": "fonts/fontawesome-webfont.ttf",
-                "name": "FONT_AWESOME_18",
+                "file": "fonts/Prototype.ttf",
+                "name": "FONT_PERFECT_DOS_46",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
                 "type": "font"
             }
         ]
@@ -167,7 +167,7 @@
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "5.21",
+    "versionLabel": "5.23",
     "watchapp": {
         "watchface": true
     }

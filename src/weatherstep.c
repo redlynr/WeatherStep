@@ -209,6 +209,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
     if (error_tuple) {
         get_health_data();
+       APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after error_tuple");
         return;
     }
 
@@ -217,6 +218,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         int update_val = update_tuple->value->int8;
         persist_write_int(KEY_HASUPDATE, update_val);
         notify_update(update_val);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after update_tuple");
         return;
     }
 
@@ -229,14 +231,14 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     Tuple *forecast_tuple = dict_find(iterator, KEY_FORECAST);
     Tuple *stocks_tuple = dict_find(iterator, KEY_STOCKS);
   
-    if (temp_tuple && max_tuple && min_tuple && weather_tuple && is_weather_enabled()) {
+    if (forecast_tuple && stocks_tuple && temp_tuple && max_tuple && min_tuple && weather_tuple && is_weather_enabled()) {
         int temp_val = (int)temp_tuple->value->int32;
         int max_val = (int)max_tuple->value->int32;
         int min_val = (int)min_tuple->value->int32;
         int weather_val = (int)weather_tuple->value->int32;
         char *forecast_val = forecast_tuple->value->cstring;
         char *stocks_val = stocks_tuple->value->cstring;
-      
+        
         update_weather_values(temp_val, max_val, min_val, weather_val);
       
  APP_LOG(APP_LOG_LEVEL_DEBUG, "before storing weather");     
@@ -246,6 +248,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         get_health_data();
 
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather data updated. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+        Layer *window_layer = window_get_root_layer(watchface);
+        layer_mark_dirty(window_layer);
         return;
     }
   
@@ -506,6 +510,9 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 static void watchface_load(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Watchface load start. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
 
+      // KAH 3/21/2016
+    accel_tap_service_subscribe(&accel_tap_handler);
+  
     create_text_layers(window);
   
     Layer *window_layer = window_get_root_layer(window);
@@ -518,7 +525,7 @@ static void watchface_load(Window *window) {
     layer_add_child(window_get_root_layer(window), s_battery_layer);
     battery_handler(battery_state_service_peek());
   
-  
+    layer_mark_dirty(window_layer);
 
     if (persist_exists(KEY_TIMEZONESCODE)) {
         persist_read_string(KEY_TIMEZONESCODE, tz_name, sizeof(tz_name));
@@ -537,6 +544,8 @@ static void watchface_unload(Window *window) {
 
     destroy_text_layers();
     layer_destroy(s_battery_layer);
+  // KAH 3/24/2016
+    accel_tap_service_unsubscribe();
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Unload end. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
 }
@@ -606,7 +615,7 @@ static void init(void) {
     battery_state_service_subscribe(battery_handler);
   
     // KAH 3/21/2016
-    accel_tap_service_subscribe(&accel_tap_handler);
+    //accel_tap_service_subscribe(&accel_tap_handler);
   
     window_stack_push(watchface, true);
 
@@ -630,7 +639,7 @@ static void init(void) {
 static void deinit(void) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Deinit start. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     // KAH 3/21/2016
-    accel_tap_service_unsubscribe();
+    //accel_tap_service_unsubscribe();
     window_destroy(watchface);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Deinit end. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
 }

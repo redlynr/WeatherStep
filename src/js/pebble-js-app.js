@@ -516,7 +516,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation, weatherPins
             
 var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWind Chill: ' + feelslike + '°\nWind Speed: ' + wind +  '\n';
-var forecast_text = 'Hi/Lo: ' + max + '°/' + min + '° Wind Chill: ' + feelslike + '° Wind Speed: ' + wind + ' - Yahoo';
+var forecast_text = 'Hi/Lo: ' + max + '°/' + min + '° Wind Chill: ' + feelslike + '° Wind Speed: ' + wind;
 var paragraphs = ["Yahoo"];
           
 var year = date.getFullYear();
@@ -707,7 +707,7 @@ tempUnit = (useCelsius ? 'C' : 'F');
 var headings = ["Forecast", "Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip: ' + precip;
 var paragraphs = [desc,"Weather Underground"];
-var forecast_text =   'Hi/Lo: ' + max + '°/' + min + '° Feels like: ' + feelslike + '°' + ' Dewpoint: ' + dewpoint + '°' + ' Wind: ' + wind + ' - WU';
+var forecast_text =   'Hi/Lo: ' + max + '°/' + min + '° Feels like: ' + feelslike + '°' + ' Dewpoint: ' + dewpoint + '°' + ' Wind: ' + wind;
 
 var year = date.getFullYear();
 var month = date.getMonth();
@@ -918,7 +918,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation, weatherPins)
 var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n';
 var paragraphs = ["Open Weather"];
-var forecast_text =  'Hi/Lo: ' + max + '°/' + min + '° WindSpeed: ' + wind + ' - OW';                 
+var forecast_text =  'Hi/Lo: ' + max + '°/' + min + '° WindSpeed: ' + wind;                 
                   
 var year = date.getFullYear();
 var month = date.getMonth();
@@ -1030,13 +1030,20 @@ function locationError(err) {
 function executeYahooFinanceQuery() { 
      var url = '';
 console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);  
+  
+  console.log('stockslist '+stocksList);
      if (shakeAction > 2){
       url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent('^DJI,^GSPC') + '/quote?format=json&view=detail';
      } else {
+       if (stocksList.length > 0){
        url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) +'/quote?format=json&view=detail';
+       } else{
+         url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent('^DJI,^GSPC') + '/quote?format=json&view=detail';
+       }
+         
      }
  
- 
+  stock_prices = '';
 
  
  console.log("calling Yahoo Finance");
@@ -1049,7 +1056,7 @@ console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);
                
                //console.log('Count ' + resp.meta.count);
                //console.log('ctock 1 ' +resp.resources[1].resource.fields.symbol );
-                stock_prices = '';
+               
                var stock_count = resp.meta.count;
                if (stock_count>5){
                  stock_count = 5; // cap max number of stocks
@@ -1156,6 +1163,7 @@ function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherP
     //console.log('Fetching stocks info...');
     // will populate stock_prices
     console.log ('getWeather - shakeAction ' +shakeAction);
+    stock_prices = '';
     if (shakeAction > 1 ) {
       executeYahooFinanceQuery();
     }

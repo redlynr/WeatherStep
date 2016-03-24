@@ -146,6 +146,7 @@ void create_text_layers(Window* window) {
     text_layer_set_background_color(ticker_text, GColorClear);
     text_layer_set_text_alignment(ticker_text, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
     layer_set_hidden(text_layer_get_layer(ticker_text),true);
+    layer_mark_dirty(text_layer_get_layer(ticker_text));
   APP_LOG(APP_LOG_LEVEL_DEBUG, "after creating ticker layer");
   
     alt_time = text_layer_create(GRect(PBL_IF_ROUND_ELSE(0, -2), alt_top, width, 50));
@@ -496,6 +497,8 @@ text_layer_set_text(ticker_text, "initializeed");
     text_layer_set_text(ticker_text, "Unfortunately, no forecast :(");
   } 
   }
+  
+  
   
   //layer_set_hidden(text_layer_get_layer(date),true);
   layer_set_hidden(text_layer_get_layer(ticker_text),false);  
