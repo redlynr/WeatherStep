@@ -189,6 +189,7 @@ static void load_screen(bool from_configs) {
     bt_handler(connection_service_peek_pebble_app_connection());
 }
 
+/*
 static void check_for_updates() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Checking for updates. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     DictionaryIterator *iter;
@@ -196,6 +197,7 @@ static void check_for_updates() {
     dict_write_uint8(iter, KEY_HASUPDATE, 1); 
     app_message_outbox_send();
 }
+*/
 
 static void notify_update(int update_available) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Notifying user. (%d) %d%d", update_available, (int)time(NULL), (int)time_ms(NULL, NULL));
