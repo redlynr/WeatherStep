@@ -394,7 +394,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
             dict[key + 'MINUTES'] = parseInt(value.split('|')[1].split(':')[1], 10);
             value = parseInt(newValue, 10);
         }
-        if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_WEATHERPINS' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER'  ){
+        if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_SHAKEACTION' || key === 'KEY_WEATHERPINS' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER'  ){
             value = parseInt(value, 10);
         }
         dict[key] = value;
@@ -516,7 +516,7 @@ function executeYahooQuery(pos, useCelsius, woeid, overrideLocation, weatherPins
             
 var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWind Chill: ' + feelslike + '°\nWind Speed: ' + wind +  '\n';
-var forecast_text = 'Hi/Lo: ' + max + '°/' + min + '° Wind Chill: ' + feelslike + '° Wind Speed: ' + wind;
+var forecast_text = 'Hi/Lo: ' + max + '°/' + min + '° Wind Chill: ' + feelslike + '° Wind Speed: ' + wind + ' - Yahoo';
 var paragraphs = ["Yahoo"];
           
 var year = date.getFullYear();
@@ -707,7 +707,7 @@ tempUnit = (useCelsius ? 'C' : 'F');
 var headings = ["Forecast", "Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '°' + '\nDewpoint: ' + dewpoint + '°' + '\n\nWind: ' + wind + '\n\nPrecip: ' + precip;
 var paragraphs = [desc,"Weather Underground"];
-var forecast_text =   'Hi/Lo: ' + max + '°/' + min + '° Feels like: ' + feelslike + '°' + ' Dewpoint: ' + dewpoint + '°' + ' Wind: ' + wind + ' Precip: ' + precip;
+var forecast_text =   'Hi/Lo: ' + max + '°/' + min + '° Feels like: ' + feelslike + '°' + ' Dewpoint: ' + dewpoint + '°' + ' Wind: ' + wind + ' - WU';
 
 var year = date.getFullYear();
 var month = date.getMonth();
@@ -845,6 +845,14 @@ console.log("pinID = " + pinID);
               }); 
         }
 */          
+          
+          console.log('Before sending data (WU) ');
+          console.log ('temp ' + temp);
+          console.log ('max ' + max);
+          console.log ('min ' + min);
+          console.log ('condition ' + condition);
+          console.log ('forecast ' + forecast_text);
+          console.log ('stock_prices ' + stock_prices);
             sendData(temp, max, min, condition, forecast_text, stock_prices);
              
         } catch(ex) {
@@ -910,7 +918,7 @@ function fetchOpenWeatherMapData(pos, useCelsius, overrideLocation, weatherPins)
 var headings = ["Powered by"];
 var current = 'Hi/Lo: ' + max + '°/' + min + '°\nWindSpeed: ' + wind + '\n';
 var paragraphs = ["Open Weather"];
-var forecast_text =  'Hi/Lo: ' + max + '°/' + min + '° WindSpeed: ' + wind;                 
+var forecast_text =  'Hi/Lo: ' + max + '°/' + min + '° WindSpeed: ' + wind + ' - OW';                 
                   
 var year = date.getFullYear();
 var month = date.getMonth();
@@ -1023,7 +1031,7 @@ function executeYahooFinanceQuery() {
      var url = '';
 console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);  
      if (shakeAction > 2){
-      url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent('^GSPC,^DJI') +'/quote?format=json&view=detail';
+      url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent('^DJI,^GSPC') + '/quote?format=json&view=detail';
      } else {
        url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) +'/quote?format=json&view=detail';
      }
@@ -1043,6 +1051,9 @@ console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);
                //console.log('ctock 1 ' +resp.resources[1].resource.fields.symbol );
                 stock_prices = '';
                var stock_count = resp.meta.count;
+               if (stock_count>5){
+                 stock_count = 5; // cap max number of stocks
+               }
                  var i = 1;
                  for (i=0; i< stock_count; i++){
                     var symbol = resp.resources[i].resource.fields.symbol;

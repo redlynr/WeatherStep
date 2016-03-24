@@ -236,6 +236,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         char *stocks_val = stocks_tuple->value->cstring;
       
         update_weather_values(temp_val, max_val, min_val, weather_val);
+      
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "before storing weather");     
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "stocks_val %s ",stocks_val);   
         store_weather_values(temp_val, max_val, min_val, weather_val, forecast_val, stocks_val); // KAH 2/26/2016
 
         get_health_data();
@@ -462,7 +465,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         persist_write_string(KEY_STOCKS, stocks_v);
     }
   
-  
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "before tuple shakeaction"); 
   
     Tuple *shakeAction = dict_find(iterator, KEY_SHAKEACTION);
     if (shakeAction) {
@@ -470,7 +473,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         persist_write_int(KEY_SHAKEACTION, shakeAction_v);  
       //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
     }  
-      
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "after tuple shakeaction");      
        
       
     Tuple *stocksList = dict_find(iterator, KEY_STOCKSLIST);

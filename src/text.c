@@ -141,7 +141,7 @@ void create_text_layers(Window* window) {
     text_layer_set_background_color(date, GColorClear);
     text_layer_set_text_alignment(date, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentCenter));
   
-    ticker_text = text_layer_create(GRect(date_left, date_top, 1000, 50));
+    ticker_text = text_layer_create(GRect(date_left, date_top, 2000, 50));
     text_layer_set_background_color(ticker_text, GColorClear);
     text_layer_set_text_alignment(ticker_text, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
     layer_set_hidden(text_layer_get_layer(ticker_text),true);
@@ -448,6 +448,8 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context) {
     
   layer_set_hidden(text_layer_get_layer(ticker_text),true);  
   layer_set_hidden(text_layer_get_layer(date),false);
+    animation_unschedule_all();
+    property_animation_destroy(s_box_animation);
   }
 }
 
@@ -500,7 +502,7 @@ void run_animation(){
   int16_t ticker_pixels = text_layer_get_content_size(ticker_text).w;
   
   GRect start_frame = GRect(width, date_top, ticker_pixels, 50);
-  GRect finish_frame = GRect(-ticker_pixels, date_top, 1000, 50);
+  GRect finish_frame = GRect(-ticker_pixels, date_top, 2000, 50);
  
   
   s_box_animation = property_animation_create_layer_frame(text_layer_get_layer(ticker_text), &start_frame, &finish_frame);
