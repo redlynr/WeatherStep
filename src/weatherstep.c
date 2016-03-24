@@ -7,6 +7,9 @@
 #include "text.h"
 #include "weather.h"
 
+char stocks_v[1000];
+char stocksList_v[1000];
+
 static Layer *s_battery_layer;
 static int s_battery_level, parent_bounds;
 static bool charge = 0;
@@ -17,6 +20,9 @@ static signed int tz_hour;
 static uint8_t tz_minute;
 static char tz_name[TZ_LEN];
 static int shakeOption;
+
+char forecast_val[1000];
+char stocks_val[1000];
 
 void update_stocks(void);
 
@@ -236,8 +242,10 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         int max_val = (int)max_tuple->value->int32;
         int min_val = (int)min_tuple->value->int32;
         int weather_val = (int)weather_tuple->value->int32;
-        char *forecast_val = forecast_tuple->value->cstring;
-        char *stocks_val = stocks_tuple->value->cstring;
+        strcpy(forecast_val, forecast_tuple->value->cstring);
+        strcpy(stocks_val, stocks_tuple->value->cstring);
+        //*forecast_val = forecast_tuple->value->cstring;
+        //*stocks_val = stocks_tuple->value->cstring;
         
         update_weather_values(temp_val, max_val, min_val, weather_val);
       
@@ -467,7 +475,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   
     Tuple *stocks = dict_find(iterator, KEY_STOCKS);
     if (stocks) {
-        char* stocks_v= stocks->value->cstring;
+        //stocks_v[]= stocks->value->cstring;
+        strcpy(stocks_v,stocks->value->cstring);
         persist_write_string(KEY_STOCKS, stocks_v);
     }
   
@@ -484,7 +493,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       
     Tuple *stocksList = dict_find(iterator, KEY_STOCKSLIST);
     if (stocksList) {
-        char* stocksList_v= stocksList->value->cstring;
+        //stocksList_v[]= stocksList->value->cstring;
+        strcpy(stocksList_v,stocksList->value->cstring);
         persist_write_string(KEY_STOCKSLIST, stocksList_v);
     }
   

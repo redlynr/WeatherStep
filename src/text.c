@@ -3,8 +3,8 @@
 #include "keys.h"
 
 
-static char stocks_key_buffer[500];
-static char forecast_key_buffer[500];
+static char stocks_key_buffer[1000];
+static char forecast_key_buffer[1000];
 
 static TextLayer *hours;
 static TextLayer *date;

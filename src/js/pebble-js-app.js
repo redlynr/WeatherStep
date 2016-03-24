@@ -1043,7 +1043,7 @@ console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);
          
      }
  
-  stock_prices = '';
+  stock_prices = "";
 
  
  console.log("calling Yahoo Finance");
@@ -1163,7 +1163,7 @@ function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherP
     //console.log('Fetching stocks info...');
     // will populate stock_prices
     console.log ('getWeather - shakeAction ' +shakeAction);
-    stock_prices = '';
+    stock_prices = "";
     if (shakeAction > 1 ) {
       executeYahooFinanceQuery();
     }

@@ -198,7 +198,7 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c Weather1 Pin %d", weather_pins);
 }
 
 // KAH 2/26/2016
-void store_weather_values(int temp, int max, int min, int weather, char *forecast_val, char *stocks_val) {
+void store_weather_values(int temp, int max, int min, int weather, char forecast_val[], char stocks_val[]) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Storing weather data. %d %d%d", use_celsius, (int)time(NULL), (int)time_ms(NULL, NULL));
     persist_write_int(KEY_TEMP, temp);
     persist_write_int(KEY_MAX, max);
