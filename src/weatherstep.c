@@ -212,7 +212,7 @@ static void notify_update(int update_available) {
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     Tuple *error_tuple = dict_find(iterator, KEY_ERROR);
-
+APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 1");
     if (error_tuple) {
         get_health_data();
        APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after error_tuple");
@@ -228,7 +228,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         return;
     }
 
-    
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 2");   
     
     Tuple *temp_tuple = dict_find(iterator, KEY_TEMP);
     Tuple *max_tuple = dict_find(iterator, KEY_MAX);
@@ -236,8 +236,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     Tuple *weather_tuple = dict_find(iterator, KEY_WEATHER);
     Tuple *forecast_tuple = dict_find(iterator, KEY_FORECAST);
     Tuple *stocks_tuple = dict_find(iterator, KEY_STOCKS);
-  
+APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 3");  
     if (forecast_tuple && stocks_tuple && temp_tuple && max_tuple && min_tuple && weather_tuple && is_weather_enabled()) {
+APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 4");      
         int temp_val = (int)temp_tuple->value->int32;
         int max_val = (int)max_tuple->value->int32;
         int min_val = (int)min_tuple->value->int32;
@@ -245,8 +246,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         strcpy(forecast_val, forecast_tuple->value->cstring);
         strcpy(stocks_val, stocks_tuple->value->cstring);
         //*forecast_val = forecast_tuple->value->cstring;
-        //*stocks_val = stocks_tuple->value->cstring;
-        
+        //*stocks_val = stocks_tuple->value->cstring; 
+APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");        
         update_weather_values(temp_val, max_val, min_val, weather_val);
       
  APP_LOG(APP_LOG_LEVEL_DEBUG, "before storing weather");     

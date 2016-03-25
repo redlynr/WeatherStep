@@ -1197,4 +1197,3 @@ function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherP
 
 
 
-
