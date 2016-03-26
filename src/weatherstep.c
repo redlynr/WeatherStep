@@ -25,6 +25,8 @@ static char tz_name[TZ_LEN];
 static PropertyAnimation *s_box_animation;
 static int shakeOption;
 
+bool animation_is_running = false;
+
 
 char forecast_val[1000];
 char stocks_val[1000];
@@ -71,7 +73,7 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context) {
 void run_animation(){
   // Play the Animation
  
-  
+ animation_is_running = true; 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Let's run the animation");
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  (int)persist_read_int(KEY_SHAKEACTION));
@@ -168,8 +170,9 @@ static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
 	
   // Play the animation
   APP_LOG(APP_LOG_LEVEL_DEBUG, "weatherstep.c - right before run_animation");
+  if (!animation_is_running) {
    run_animation();
-  
+  }
   /*
   if (persist_exists(KEY_SHAKEACTION) && (int)persist_read_int(KEY_SHAKEACTION) > 0) { 
      shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
