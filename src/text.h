@@ -31,8 +31,8 @@ void set_max_icon_layer_text(char*);
 void set_min_icon_layer_text(char*);
 void set_update_layer_text(char*);
 
-void hide_ticker();
-void display_ticker();
+void hide_ticker(int shakeOption);
+void display_ticker(int shakeOption);
 void set_ticker(char *ticker);
 int16_t ticker_pixels;
 

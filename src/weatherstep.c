@@ -7,9 +7,9 @@
 #include "text.h"
 #include "weather.h"
 
-char stocks_v[1000];
-char stocksList_v[1000];
-char stocks_key_buffer[1000];
+char stocks_v[500];
+char stocksList_v[100];
+char stocks_key_buffer[500];
 char forecast_key_buffer[1000];
 
 static Layer *s_battery_layer;
@@ -28,15 +28,15 @@ static int shakeOption;
 bool animation_is_running = false;
 
 
-char forecast_val[1000];
-char stocks_val[1000];
+//char forecast_val[1000];
+//char stocks_val[500];
 
 void update_stocks(void);
 
 
 void create_ticker(){
    APP_LOG(APP_LOG_LEVEL_DEBUG, "before creating ticker layer");
-    ticker_text = text_layer_create(GRect(date_left, date_top, 1000, 50));
+    ticker_text = text_layer_create(GRect(width, date_top, 1000, 50));
     text_layer_set_background_color(ticker_text, GColorClear);
     text_layer_set_text_alignment(ticker_text, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
     layer_set_hidden(text_layer_get_layer(ticker_text),true);
@@ -61,8 +61,10 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context) {
   if (finished) {
     
    APP_LOG(APP_LOG_LEVEL_DEBUG, "animation is finshed");  
-    
-  hide_ticker();
+    animation_is_running = false;
+        
+  set_ticker(" ");
+  hide_ticker(shakeOption);
   destroy_ticker();  
   property_animation_destroy(s_box_animation);
 
@@ -78,13 +80,14 @@ void run_animation(){
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  (int)persist_read_int(KEY_SHAKEACTION));
  create_ticker();
- display_ticker("initializeed"); 
+ set_ticker("initializeed"); 
  if (persist_exists(KEY_SHAKEACTION)){ 
     shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
     if (shakeOption >= 48){
       shakeOption = shakeOption - 48;
     }
-     if (shakeOption < 1) {  
+     if (shakeOption < 1) { 
+    animation_is_running = false;
     return;
   }
    
@@ -101,7 +104,7 @@ void run_animation(){
               set_ticker(stocks_key_buffer);
             }
     } else {
-    display_ticker("Unfortunately, no stocks :(");
+    set_ticker("Unfortunately, no stocks :(");
     }
   }
   
@@ -122,7 +125,7 @@ void run_animation(){
   
   
   //layer_set_hidden(text_layer_get_layer(date),true);
-  display_ticker();
+  display_ticker(shakeOption);
   
  
   // KAH 3/25/2016 - test
@@ -388,17 +391,19 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 4");
         int max_val = (int)max_tuple->value->int32;
         int min_val = (int)min_tuple->value->int32;
         int weather_val = (int)weather_tuple->value->int32;
-        strcpy(forecast_val, forecast_tuple->value->cstring);
-        strcpy(stocks_val, stocks_tuple->value->cstring);
+//        strcpy(forecast_val, forecast_tuple->value->cstring);
+//        strcpy(stocks_val, stocks_tuple->value->cstring);
+        strcpy(forecast_key_buffer, forecast_tuple->value->cstring);
+        strcpy(stocks_key_buffer, stocks_tuple->value->cstring);      
         //*forecast_val = forecast_tuple->value->cstring;
         //*stocks_val = stocks_tuple->value->cstring; 
 APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");        
         update_weather_values(temp_val, max_val, min_val, weather_val);
       
  APP_LOG(APP_LOG_LEVEL_DEBUG, "before storing weather");     
- APP_LOG(APP_LOG_LEVEL_DEBUG, "stocks_val %s ",stocks_val);   
-        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_val, stocks_val); // KAH 2/26/2016
-
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "stocks_key_buffer %s ",stocks_key_buffer);   
+//        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_val, stocks_val); // KAH 2/26/2016
+        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_key_buffer, stocks_key_buffer); // KAH 2/26/2016
         get_health_data();
 
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather data updated. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));

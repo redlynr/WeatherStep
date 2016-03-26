@@ -221,17 +221,23 @@ void create_text_layers(Window* window) {
   
 }
 
-void hide_ticker() {
+void hide_ticker(int shakeOption) {
+  
   layer_set_hidden(text_layer_get_layer(ticker_text),true);  
   layer_set_hidden(text_layer_get_layer(date),false); 
   
 
 }
 
-void display_ticker(){
-  layer_set_hidden(text_layer_get_layer(date),true);
-  layer_set_hidden(text_layer_get_layer(ticker_text),false);  
-  
+void display_ticker(int shakeOption){
+  if (shakeOption >= 48){
+    shakeOption = shakeOption - 48;
+  }
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "shakeOption %d", shakeOption);
+  if (shakeOption > 0){
+    layer_set_hidden(text_layer_get_layer(date),true);
+    layer_set_hidden(text_layer_get_layer(ticker_text),false);  
+  }
 }
 
 void set_ticker(char *ticker){
