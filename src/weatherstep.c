@@ -9,6 +9,8 @@
 
 char stocks_v[1000];
 char stocksList_v[1000];
+char stocks_key_buffer[1000];
+char forecast_key_buffer[1000];
 
 static Layer *s_battery_layer;
 static int s_battery_level, parent_bounds;
@@ -19,19 +21,156 @@ static Window *watchface;
 static signed int tz_hour;
 static uint8_t tz_minute;
 static char tz_name[TZ_LEN];
+//animates layer by number of pixels
+static PropertyAnimation *s_box_animation;
 static int shakeOption;
+
 
 char forecast_val[1000];
 char stocks_val[1000];
 
 void update_stocks(void);
 
+
+void create_ticker(){
+   APP_LOG(APP_LOG_LEVEL_DEBUG, "before creating ticker layer");
+    ticker_text = text_layer_create(GRect(date_left, date_top, 1000, 50));
+    text_layer_set_background_color(ticker_text, GColorClear);
+    text_layer_set_text_alignment(ticker_text, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
+    layer_set_hidden(text_layer_get_layer(ticker_text),true);
+    text_layer_set_font(ticker_text,base_font);
+    bool enableAdvanced = persist_exists(KEY_ENABLEADVANCED) ? persist_read_int(KEY_ENABLEADVANCED) : false;
+    text_layer_set_text_color(ticker_text, 
+            enableAdvanced ? GColorFromHEX(persist_read_int(KEY_DATECOLOR)) : base_color);
+            
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "after creating ticker layer");
+  Layer *window_layer = window_get_root_layer(watchface);
+  layer_add_child(window_layer, text_layer_get_layer(ticker_text));
+}
+
+void destroy_ticker(){
+  text_layer_destroy(ticker_text);
+}
+
+
+void anim_stopped_handler(Animation *animation, bool finished, void *context) {
+	
+   // Schedule the reverse animation, unless the app is exiting
+  if (finished) {
+    
+   APP_LOG(APP_LOG_LEVEL_DEBUG, "animation is finshed");  
+    
+  hide_ticker();
+  destroy_ticker();  
+  property_animation_destroy(s_box_animation);
+
+   APP_LOG(APP_LOG_LEVEL_DEBUG, "after destroying property animation %d free",(int)heap_bytes_free());  
+  }
+}
+
+void run_animation(){
+  // Play the Animation
+ 
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Let's run the animation");
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  (int)persist_read_int(KEY_SHAKEACTION));
+ create_ticker();
+ display_ticker("initializeed"); 
+ if (persist_exists(KEY_SHAKEACTION)){ 
+    shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
+    if (shakeOption >= 48){
+      shakeOption = shakeOption - 48;
+    }
+     if (shakeOption < 1) {  
+    return;
+  }
+   
+ }
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  shakeOption);
+  
+  if (persist_exists(KEY_SHAKEACTION) && shakeOption > 1) {  
+       
+    if (persist_exists(KEY_STOCKS)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating stocks from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+            persist_read_string(KEY_STOCKS, stocks_key_buffer, sizeof(stocks_key_buffer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of stocks_key_buffer. %d",(int)sizeof(stocks_key_buffer));
+            if(sizeof(stocks_key_buffer)>0){
+              set_ticker(stocks_key_buffer);
+            }
+    } else {
+    display_ticker("Unfortunately, no stocks :(");
+    }
+  }
+  
+  if (persist_exists(KEY_SHAKEACTION) && shakeOption == 1) { 
+      if (persist_exists(KEY_FORECAST)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating forecast from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+          
+            persist_read_string(KEY_FORECAST, forecast_key_buffer, sizeof(forecast_key_buffer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of forecast_key_buffer. %d",(int)sizeof(forecast_key_buffer));
+            if(sizeof(forecast_key_buffer)>0){
+              set_ticker(forecast_key_buffer);
+              }
+      } else {
+          set_ticker("Unfortunately, no forecast :(");
+      } 
+  }
+  
+  
+  
+  //layer_set_hidden(text_layer_get_layer(date),true);
+  display_ticker();
+  
+ 
+  // KAH 3/25/2016 - test
+  //return;
+  
+  
+  
+  
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "ticker pixels %d ",ticker_pixels);
+  
+  GRect start_frame = GRect(width, date_top, ticker_pixels, 50);
+  GRect finish_frame = GRect(-ticker_pixels, date_top, 1000, 50);
+ 
+ 
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Before creating property animation %d free",(int)heap_bytes_free());
+          
+          
+          
+  s_box_animation = property_animation_create_layer_frame(text_layer_get_layer(ticker_text), &start_frame, &finish_frame);
+  animation_set_handlers((Animation*)s_box_animation, (AnimationHandlers) {
+    .stopped = anim_stopped_handler
+  }, NULL);
+  animation_set_duration((Animation*)s_box_animation, 10000 );
+  animation_set_curve((Animation*)s_box_animation, AnimationCurveLinear);
+  animation_set_delay((Animation*)s_box_animation, 0);
+
+  animation_schedule((Animation*)s_box_animation);
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "after creating property animation %d free",(int)heap_bytes_free());
+  
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Animation has been scheduled");
+
+ 
+ 
+}
+
+
+
 // KAH 3/21/2016
 // when watch is shaken or tapped
 static void accel_tap_handler(AccelAxisType axis, int32_t direction) {   
 	
   // Play the animation
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "weatherstep.c - right before run_animation");
+   run_animation();
   
+  /*
   if (persist_exists(KEY_SHAKEACTION) && (int)persist_read_int(KEY_SHAKEACTION) > 0) { 
      shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
     if (shakeOption >= 48){
@@ -41,6 +180,9 @@ static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
       run_animation();
     }
   }
+  */
+  
+  
 }
 
 
@@ -257,8 +399,7 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
         get_health_data();
 
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather data updated. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-        Layer *window_layer = window_get_root_layer(watchface);
-        layer_mark_dirty(window_layer);
+
         return;
     }
   
@@ -521,6 +662,8 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 static void watchface_load(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Watchface load start. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
 
+
+  
       // KAH 3/21/2016
     accel_tap_service_subscribe(&accel_tap_handler);
   
@@ -531,13 +674,15 @@ static void watchface_load(Window *window) {
     parent_bounds = bounds.size.w -20;
 
     // Create BATTERY meter Layer
+  
     s_battery_layer = layer_create(GRect(PBL_IF_ROUND_ELSE(20,10), PBL_IF_ROUND_ELSE(125, 120), bounds.size.w -PBL_IF_ROUND_ELSE(40,20), 2));
     layer_set_update_proc(s_battery_layer, battery_update_proc);
     layer_add_child(window_get_root_layer(window), s_battery_layer);
     battery_handler(battery_state_service_peek());
   
-    layer_mark_dirty(window_layer);
-
+         
+      
+      
     if (persist_exists(KEY_TIMEZONESCODE)) {
         persist_read_string(KEY_TIMEZONESCODE, tz_name, sizeof(tz_name));
         tz_hour = persist_exists(KEY_TIMEZONES) ? persist_read_int(KEY_TIMEZONES) : 0;
@@ -562,23 +707,7 @@ static void watchface_unload(Window *window) {
 }
 
 
-void update_stocks(void) {
-    DictionaryIterator *iter;
-  
-   char stocks_key_buffer[500];
-   if (persist_exists(KEY_STOCKS)) {
-        persist_read_string(KEY_STOCKS, stocks_key_buffer, sizeof(stocks_key_buffer));
-    } else {
-        stocks_key_buffer[0] = '\0';
-    }
-  
-    app_message_outbox_begin(&iter);
-    dict_write_cstring(iter, KEY_STOCKS, stocks_key_buffer);
- 
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting stocks. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL)); 
-  
-    app_message_outbox_send();
-}
+
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     update_time();
@@ -602,9 +731,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
         update_weather();
 
     }
-   //if(tick_time->tm_min % tick_interval == 0) {
-   //     update_stocks();
-   //}
+ 
    
   
 }
@@ -656,6 +783,7 @@ static void deinit(void) {
 }
 
 int main(void) {
+
     APP_LOG(APP_LOG_LEVEL_DEBUG, "App start. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     init();
     app_event_loop();

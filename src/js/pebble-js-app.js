@@ -709,6 +709,8 @@ var current = 'Hi/Lo: ' + max + '°/' + min + '°\nFeels like: ' + feelslike + '
 var paragraphs = [desc,"Weather Underground"];
 var forecast_text =   'Hi/Lo: ' + max + '°/' + min + '° Feels like: ' + feelslike + '°' + ' Dewpoint: ' + dewpoint + '°' + ' Wind: ' + wind;
 
+          
+          
 var year = date.getFullYear();
 var month = date.getMonth();
 var today = date.getDate();
@@ -852,8 +854,10 @@ console.log("pinID = " + pinID);
           console.log ('min ' + min);
           console.log ('condition ' + condition);
           console.log ('forecast ' + forecast_text);
+          console.log ('description ',desc);
           console.log ('stock_prices ' + stock_prices);
-            sendData(temp, max, min, condition, forecast_text, stock_prices);
+            //sendData(temp, max, min, condition, forecast_text, stock_prices);
+          sendData(temp, max, min, condition, desc, stock_prices);
              
         } catch(ex) {
             //console.log(ex);
@@ -998,6 +1002,8 @@ function kelvinToFahrenheit(temp) {
 }
 
 function sendData(temp, max, min, condition, forecast) {
+  stock_prices=stock_prices +'\0';
+  forecast = forecast + '\0';
     var data = {
         'KEY_TEMP': temp,
         'KEY_MAX': max,

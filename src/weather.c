@@ -8,6 +8,7 @@ static int weather_pins;
 static char weather_key_buffer[20]; // KAH 2/26/2016
 static bool health_enabled;
 
+
 static char* weather_conditions[] = {
     "\U0000F07B", // 'unknown': 0,
     "\U0000F00D", // 'clear': 1,
@@ -82,7 +83,7 @@ void update_weather(void) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Requesting weather. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL)); 
     dict_write_uint8(iter, KEY_USECELSIUS, use_celsius);
     dict_write_uint8(iter, KEY_WEATHERPINS, weather_pins);
-APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c Weather2 Pin %d", weather_pins);   
+APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c Weather2 Pin %d", weather_pins);     
  //   dict_write_cstring(iter, KEY_WEATHERKEY, weather_key_buffer);
     app_message_outbox_send();
 }
