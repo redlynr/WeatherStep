@@ -7,10 +7,11 @@
 #include "text.h"
 #include "weather.h"
 
-char stocks_v[500];
-char stocksList_v[100];
-char stocks_key_buffer[500];
-char forecast_key_buffer[1000];
+static char stocks_v[500];
+static char stocksList_v[100];
+//static char stocks_key_buffer[500];
+//static char forecast_key_buffer[1000];
+static char ticker_buffer[1000];
 
 static Layer *s_battery_layer;
 static int s_battery_level, parent_bounds;
@@ -98,10 +99,10 @@ void run_animation(){
        
     if (persist_exists(KEY_STOCKS)) {
             APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating stocks from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-            persist_read_string(KEY_STOCKS, stocks_key_buffer, sizeof(stocks_key_buffer));
-            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of stocks_key_buffer. %d",(int)sizeof(stocks_key_buffer));
-            if(sizeof(stocks_key_buffer)>0){
-              set_ticker(stocks_key_buffer);
+            persist_read_string(KEY_STOCKS, ticker_buffer, sizeof(ticker_buffer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of ticker_buffer. %d",(int)sizeof(ticker_buffer));
+            if(sizeof(ticker_buffer)>0){
+              set_ticker(ticker_buffer);
             }
     } else {
     set_ticker("Unfortunately, no stocks :(");
@@ -112,10 +113,10 @@ void run_animation(){
       if (persist_exists(KEY_FORECAST)) {
             APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating forecast from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
           
-            persist_read_string(KEY_FORECAST, forecast_key_buffer, sizeof(forecast_key_buffer));
-            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of forecast_key_buffer. %d",(int)sizeof(forecast_key_buffer));
-            if(sizeof(forecast_key_buffer)>0){
-              set_ticker(forecast_key_buffer);
+            persist_read_string(KEY_FORECAST, ticker_buffer, sizeof(ticker_buffer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of ticker_buffer. %d",(int)sizeof(ticker_buffer));
+            if(sizeof(ticker_buffer)>0){
+              set_ticker(ticker_buffer);
               }
       } else {
           set_ticker("Unfortunately, no forecast :(");
@@ -393,17 +394,22 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 4");
         int weather_val = (int)weather_tuple->value->int32;
 //        strcpy(forecast_val, forecast_tuple->value->cstring);
 //        strcpy(stocks_val, stocks_tuple->value->cstring);
-        strcpy(forecast_key_buffer, forecast_tuple->value->cstring);
-        strcpy(stocks_key_buffer, stocks_tuple->value->cstring);      
+      
         //*forecast_val = forecast_tuple->value->cstring;
         //*stocks_val = stocks_tuple->value->cstring; 
 APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");        
         update_weather_values(temp_val, max_val, min_val, weather_val);
       
  APP_LOG(APP_LOG_LEVEL_DEBUG, "before storing weather");     
- APP_LOG(APP_LOG_LEVEL_DEBUG, "stocks_key_buffer %s ",stocks_key_buffer);   
+// APP_LOG(APP_LOG_LEVEL_DEBUG, "stocks_key_buffer %s ",stocks_key_buffer);   
 //        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_val, stocks_val); // KAH 2/26/2016
-        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_key_buffer, stocks_key_buffer); // KAH 2/26/2016
+//        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_key_buffer, stocks_key_buffer);
+        store_weather_values(temp_val, max_val, min_val, weather_val);
+        strcpy(ticker_buffer, forecast_tuple->value->cstring);
+        store_forecast_value(ticker_buffer);
+        strcpy(ticker_buffer, stocks_tuple->value->cstring);      
+        store_stocks_value(ticker_buffer);
+      
         get_health_data();
 
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather data updated. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
