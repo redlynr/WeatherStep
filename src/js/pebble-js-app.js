@@ -1093,12 +1093,13 @@ console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);
                    }
                    var price = Math.round(resp.resources[i].resource.fields.price*100)/100;
                    
-                   var change = Math.round(resp.resources[i].resource.fields.chg_percent*100)/100;
+                   //var change = Math.round(resp.resources[i].resource.fields.chg_percent*100)/100;
+                   var change = Math.round(resp.resources[i].resource.fields.change*100)/100;
                    if(change>0){
                      change = '+' + change;
                    }
                    
-                  stock_prices = stock_prices + symbol + ' ' + price + ' ' + change + '%; ';
+                  stock_prices = stock_prices + symbol + ' ' + price + ' ' + change + '; ';
                  }             
               
 console.log("stock_prices",stock_prices);         
