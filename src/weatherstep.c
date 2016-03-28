@@ -7,17 +7,24 @@
 #include "text.h"
 #include "weather.h"
 
-
+#if (PBL_PLATFORM_APLITE)
+static char stocks_v[300];
+static char stocksList_v[50];
+static char speedMultiplier[5];
+static char speedMultiplier_v[5];
+static char ticker_buffer[200];
+#else
 static char stocks_v[500];
 static char stocksList_v[100];
-
-
-
 static char speedMultiplier[10];
 static char speedMultiplier_v[10];
-//static char stocks_key_buffer[500];
-//static char forecast_key_buffer[1000];
-static char ticker_buffer[1000];
+static char ticker_buffer[500];
+#endif
+
+
+//static char speedMultiplier[5];
+//static char speedMultiplier_v[5];
+//static char ticker_buffer[500];
 
 static Layer *s_battery_layer;
 static int s_battery_level, parent_bounds;
@@ -33,23 +40,23 @@ static PropertyAnimation *s_box_animation;
 static int shakeOption;
 static int shakeOption1;
 static int shakeOption2;
-static int shakeOption3;
+//static int shakeOption3;
 
 bool first_animation_is_running = false;
 bool second_animation_is_running = false;
-bool third_animation_is_running = false;
+//bool third_animation_is_running = false;
 
 //char forecast_val[1000];
 //char stocks_val[500];
 
-void update_stocks(void);
+
 
 
 void create_ticker(){
    APP_LOG(APP_LOG_LEVEL_DEBUG, "before creating ticker layer");
-    ticker_text = text_layer_create(GRect(width, date_top, 2000, 40));
+    ticker_text = text_layer_create(GRect(width, date_top, 5000, 40));
     text_layer_set_background_color(ticker_text, GColorClear);
-    text_layer_set_overflow_mode(ticker_text,GTextOverflowModeWordWrap);
+    //text_layer_set_overflow_mode(ticker_text,GTextOverflowModeWordWrap);
     text_layer_set_text_alignment(ticker_text, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
     layer_set_hidden(text_layer_get_layer(ticker_text),true);
     text_layer_set_font(ticker_text,base_font);
@@ -77,9 +84,10 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context) {
     first_animation_is_running = false;
    } else if (second_animation_is_running) {
      second_animation_is_running = false;
-   } else if (third_animation_is_running) {
-     third_animation_is_running = false;
-   }
+   } 
+ //   else if (third_animation_is_running) {
+ //    third_animation_is_running = false;
+ //  }
     
   set_ticker(" ");
   hide_ticker(shakeOption);
@@ -120,7 +128,7 @@ void run_animation(){
  if (first_animation_is_running) {
    second_animation_is_running = true;
  } else if(second_animation_is_running){
-   third_animation_is_running = true;
+   //third_animation_is_running = true;
  } else {
    first_animation_is_running = true; 
  }
@@ -141,10 +149,10 @@ if (shakeOption < 1) {
       second_animation_is_running = false;
       return;        
     }
-    if (third_animation_is_running){
-      third_animation_is_running = false;
-      return;        
-    }
+    //if (third_animation_is_running){
+    //  third_animation_is_running = false;
+    //  return;        
+    //}
 }
   
   
@@ -187,7 +195,7 @@ if (shakeOption < 1) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "ticker pixels %d ",ticker_pixels);
   
   GRect start_frame = GRect(width, date_top, ticker_pixels, 40);
-  GRect finish_frame = GRect(-ticker_pixels, date_top, 1000, 40);
+  GRect finish_frame = GRect(-ticker_pixels, date_top, 5000, 40);
  
  
   
@@ -261,7 +269,7 @@ if (persist_exists(KEY_SHAKEACTION3)){
   
   // Play the animation
   
-  if (!first_animation_is_running && !second_animation_is_running && !third_animation_is_running) {
+  if (!first_animation_is_running && !second_animation_is_running ) {
    shakeOption = shakeOption1;
    run_animation();
   } else if (first_animation_is_running && !second_animation_is_running) {
@@ -754,14 +762,12 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
     }
   
  
-  
     Tuple *shakeAction = dict_find(iterator, KEY_SHAKEACTION);
     if (shakeAction) {
         uint8_t shakeAction_v = shakeAction->value->int8;
         persist_write_int(KEY_SHAKEACTION, shakeAction_v);  
       //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
     }  
-  
   
  
        
