@@ -3,29 +3,50 @@
 #include "keys.h"
 
 
-
-/* moved to text.h
-
-static TextLayer *hours;
-static TextLayer *date;
-static TextLayer *ticker_text;
-static TextLayer *alt_time;
-static TextLayer *battery;
-static TextLayer *bluetooth;
-static TextLayer *temp_cur;
-static TextLayer *temp_max;
-static TextLayer *temp_min;
-static TextLayer *steps_or_sleep;
-static TextLayer *dist_or_deep;
-static TextLayer *weather;
-static TextLayer *max_icon;
-static TextLayer *min_icon;
-static TextLayer *update;
+int16_t ticker_pixels;
 
 
+int hours_top;
+int width;
+int date_left;
+int date_top;
+int alt_top;
+int battery_top;
+int bt_top;
+
+int temp_min_max_top;
+int temp_icon_min_max_top;
+int update_top;
+
+GFont time_font;
+GFont medium_font;
+GFont base_font;
+GFont steps_font;
+GFont weather_font;
+GFont weather_big_font;
+GFont awesome_font;
+
+TextLayer *hours;
+TextLayer *date;
+TextLayer *ticker_text;
+TextLayer *alt_time;
+TextLayer *battery;
+TextLayer *bluetooth;
+TextLayer *temp_cur;
+TextLayer *temp_max;
+TextLayer *temp_min;
+TextLayer *steps_or_sleep;
+TextLayer *dist_or_deep;
+TextLayer *weather;
+TextLayer *max_icon;
+TextLayer *min_icon;
+TextLayer *update;
+
+GColor base_color;
 
 
-*/
+
+
 static char hour_text[13];
 static char date_text[13];
 static char temp_cur_text[8];
@@ -243,6 +264,9 @@ void display_ticker(int shakeOption){
 void set_ticker(char *ticker){
   text_layer_set_text(ticker_text, ticker);
   ticker_pixels = text_layer_get_content_size(ticker_text).w;
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "ticker w = %d h = %d ",ticker_pixels,text_layer_get_content_size(ticker_text).h);
+  
 }
 
 

@@ -26,7 +26,10 @@
         "KEY_NOLEADINGZERO": 38,
         "KEY_OVERRIDELOCATION": 31,
         "KEY_SHAKEACTION": 46,
+        "KEY_SHAKEACTION2": 48,
+        "KEY_SHAKEACTION3": 49,
         "KEY_SHOWSLEEP": 6,
+        "KEY_SPEEDMULTIPLIER": 50,
         "KEY_STEPSCOLOR": 22,
         "KEY_STOCKS": 44,
         "KEY_STOCKSLIST": 47,
@@ -167,7 +170,7 @@
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "5.28",
+    "versionLabel": "5.30",
     "watchapp": {
         "watchface": true
     }

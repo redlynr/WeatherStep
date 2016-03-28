@@ -34,46 +34,49 @@ void set_update_layer_text(char*);
 void hide_ticker(int shakeOption);
 void display_ticker(int shakeOption);
 void set_ticker(char *ticker);
-int16_t ticker_pixels;
+
+extern int16_t ticker_pixels;
 
 
-int hours_top;
-int width;
-int date_left;
-int date_top;
-int alt_top;
-int battery_top;
-int bt_top;
-   // int temp_cur_top;
-int temp_min_max_top;
-int temp_icon_min_max_top;
-int update_top;
+extern int hours_top;
+extern int width;
+extern int date_left;
+extern int date_top;
+extern int alt_top;
+extern int battery_top;
+extern int bt_top;
 
-GFont time_font;
-GFont medium_font;
-GFont base_font;
-GFont steps_font;
-GFont weather_font;
-GFont weather_big_font;
-GFont awesome_font;
+extern int temp_min_max_top;
+extern int temp_icon_min_max_top;
+extern int update_top;
 
-TextLayer *hours;
-TextLayer *date;
-TextLayer *ticker_text;
-TextLayer *alt_time;
-TextLayer *battery;
-TextLayer *bluetooth;
-TextLayer *temp_cur;
-TextLayer *temp_max;
-TextLayer *temp_min;
-TextLayer *steps_or_sleep;
-TextLayer *dist_or_deep;
-TextLayer *weather;
-TextLayer *max_icon;
-TextLayer *min_icon;
-TextLayer *update;
+extern GFont time_font;
+extern GFont medium_font;
+extern GFont base_font;
+extern GFont steps_font;
+extern GFont weather_font;
+extern GFont weather_big_font;
+extern GFont awesome_font;
 
-GColor base_color;
+extern TextLayer *hours;
+extern TextLayer *date;
+extern TextLayer *ticker_text;
+extern TextLayer *alt_time;
+extern TextLayer *battery;
+extern TextLayer *bluetooth;
+extern TextLayer *temp_cur;
+extern TextLayer *temp_max;
+extern TextLayer *temp_min;
+extern TextLayer *steps_or_sleep;
+extern TextLayer *dist_or_deep;
+extern TextLayer *weather;
+extern TextLayer *max_icon;
+extern TextLayer *min_icon;
+extern TextLayer *update;
+
+extern GColor base_color;
+
+
 
 
 #endif

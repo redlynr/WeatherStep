@@ -7,8 +7,14 @@
 #include "text.h"
 #include "weather.h"
 
+
 static char stocks_v[500];
 static char stocksList_v[100];
+
+
+
+static char speedMultiplier[10];
+static char speedMultiplier_v[10];
 //static char stocks_key_buffer[500];
 //static char forecast_key_buffer[1000];
 static char ticker_buffer[1000];
@@ -25,9 +31,13 @@ static char tz_name[TZ_LEN];
 //animates layer by number of pixels
 static PropertyAnimation *s_box_animation;
 static int shakeOption;
+static int shakeOption1;
+static int shakeOption2;
+static int shakeOption3;
 
-bool animation_is_running = false;
-
+bool first_animation_is_running = false;
+bool second_animation_is_running = false;
+bool third_animation_is_running = false;
 
 //char forecast_val[1000];
 //char stocks_val[500];
@@ -37,8 +47,9 @@ void update_stocks(void);
 
 void create_ticker(){
    APP_LOG(APP_LOG_LEVEL_DEBUG, "before creating ticker layer");
-    ticker_text = text_layer_create(GRect(width, date_top, 1000, 50));
+    ticker_text = text_layer_create(GRect(width, date_top, 2000, 40));
     text_layer_set_background_color(ticker_text, GColorClear);
+    text_layer_set_overflow_mode(ticker_text,GTextOverflowModeWordWrap);
     text_layer_set_text_alignment(ticker_text, PBL_IF_ROUND_ELSE(GTextAlignmentLeft, GTextAlignmentLeft));
     layer_set_hidden(text_layer_get_layer(ticker_text),true);
     text_layer_set_font(ticker_text,base_font);
@@ -62,8 +73,14 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context) {
   if (finished) {
     
    APP_LOG(APP_LOG_LEVEL_DEBUG, "animation is finshed");  
-    animation_is_running = false;
-        
+   if (first_animation_is_running){ 
+    first_animation_is_running = false;
+   } else if (second_animation_is_running) {
+     second_animation_is_running = false;
+   } else if (third_animation_is_running) {
+     third_animation_is_running = false;
+   }
+    
   set_ticker(" ");
   hide_ticker(shakeOption);
   destroy_ticker();  
@@ -73,29 +90,67 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context) {
   }
 }
 
+
+float stof(const char* s){
+  float rez = 0, fact = 1;
+  if (*s == '-'){
+    s++;
+    fact = -1;
+  };
+  for (int point_seen = 0; *s; s++){
+    if (*s == '.'){
+      point_seen = 1; 
+      continue;
+    };
+    int d = *s - '0';
+    if (d >= 0 && d <= 9){
+      if (point_seen) fact /= 10.0f;
+      rez = rez * 10.0f + (float)d;
+    };
+  };
+  return rez * fact;
+};
+
 void run_animation(){
   // Play the Animation
- 
- animation_is_running = true; 
+  
+  float speed;
+  float speed_adj;
+  
+ if (first_animation_is_running) {
+   second_animation_is_running = true;
+ } else if(second_animation_is_running){
+   third_animation_is_running = true;
+ } else {
+   first_animation_is_running = true; 
+ }
+  
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Let's run the animation");
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  (int)persist_read_int(KEY_SHAKEACTION));
  create_ticker();
  set_ticker("initializeed"); 
- if (persist_exists(KEY_SHAKEACTION)){ 
-    shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
-    if (shakeOption >= 48){
-      shakeOption = shakeOption - 48;
+ 
+  
+if (shakeOption < 1) { 
+    if (first_animation_is_running){
+      first_animation_is_running = false;
+      return;  
     }
-     if (shakeOption < 1) { 
-    animation_is_running = false;
-    return;
-  }
-   
- }
+    if (second_animation_is_running){
+      second_animation_is_running = false;
+      return;        
+    }
+    if (third_animation_is_running){
+      third_animation_is_running = false;
+      return;        
+    }
+}
+  
+  
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  shakeOption);
   
-  if (persist_exists(KEY_SHAKEACTION) && shakeOption > 1) {  
+  if (shakeOption > 1) {  
        
     if (persist_exists(KEY_STOCKS)) {
             APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating stocks from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
@@ -109,7 +164,7 @@ void run_animation(){
     }
   }
   
-  if (persist_exists(KEY_SHAKEACTION) && shakeOption == 1) { 
+  if (shakeOption == 1) { 
       if (persist_exists(KEY_FORECAST)) {
             APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating forecast from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
           
@@ -125,33 +180,41 @@ void run_animation(){
   
   
   
-  //layer_set_hidden(text_layer_get_layer(date),true);
   display_ticker(shakeOption);
   
  
-  // KAH 3/25/2016 - test
-  //return;
-  
-  
-  
-  
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "ticker pixels %d ",ticker_pixels);
   
-  GRect start_frame = GRect(width, date_top, ticker_pixels, 50);
-  GRect finish_frame = GRect(-ticker_pixels, date_top, 1000, 50);
+  GRect start_frame = GRect(width, date_top, ticker_pixels, 40);
+  GRect finish_frame = GRect(-ticker_pixels, date_top, 1000, 40);
  
  
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Before creating property animation %d free",(int)heap_bytes_free());
-          
-          
-          
+    
+  speed_adj = 1.0;
+  speed = 10000.0;   
+  // "normalization"
+  speed = speed * (ticker_pixels / 500.0);  
+  
+  
+  if (persist_exists(KEY_SPEEDMULTIPLIER)){
+    persist_read_string(KEY_SPEEDMULTIPLIER, speedMultiplier, sizeof(speedMultiplier));
+    speed_adj = stof(speedMultiplier);
+  }
+  
+  
+  if (speed_adj > 0){
+    speed = speed / speed_adj;
+  }
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "speed  %d ",(int)speed);
+  
   s_box_animation = property_animation_create_layer_frame(text_layer_get_layer(ticker_text), &start_frame, &finish_frame);
   animation_set_handlers((Animation*)s_box_animation, (AnimationHandlers) {
     .stopped = anim_stopped_handler
   }, NULL);
-  animation_set_duration((Animation*)s_box_animation, 10000 );
+  animation_set_duration((Animation*)s_box_animation, (int)speed );
   animation_set_curve((Animation*)s_box_animation, AnimationCurveLinear);
   animation_set_delay((Animation*)s_box_animation, 0);
 
@@ -172,11 +235,65 @@ void run_animation(){
 // when watch is shaken or tapped
 static void accel_tap_handler(AccelAxisType axis, int32_t direction) {   
 	
+if (persist_exists(KEY_SHAKEACTION)){ 
+    shakeOption1 = (int)persist_read_int(KEY_SHAKEACTION);
+    if (shakeOption1 >= 48){
+      shakeOption1 = shakeOption1 - 48;
+    }
+
+}  
+if (persist_exists(KEY_SHAKEACTION2)){ 
+    shakeOption2 = (int)persist_read_int(KEY_SHAKEACTION2);
+    if (shakeOption2 >= 48){
+      shakeOption2 = shakeOption2 - 48;
+    }
+
+}
+/*  
+if (persist_exists(KEY_SHAKEACTION3)){ 
+    shakeOption3 = (int)persist_read_int(KEY_SHAKEACTION3);
+    if (shakeOption3 >= 48){
+      shakeOption3 = shakeOption3 - 48;
+    }
+
+}
+*/  
+  
   // Play the animation
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "weatherstep.c - right before run_animation");
-  if (!animation_is_running) {
+  
+  if (!first_animation_is_running && !second_animation_is_running && !third_animation_is_running) {
+   shakeOption = shakeOption1;
    run_animation();
+  } else if (first_animation_is_running && !second_animation_is_running) {
+      if (shakeOption2 > 0){
+        set_ticker(" ");
+        hide_ticker(shakeOption);
+        destroy_ticker();  
+        property_animation_destroy(s_box_animation);
+        shakeOption = shakeOption2;
+        run_animation();
+        first_animation_is_running = false;
+      }
+ /*   
+ } else if (second_animation_is_running && !third_animation_is_running) {
+     if (shakeOption3 > 0){
+        set_ticker(" ");
+        hide_ticker(shakeOption);
+        destroy_ticker();  
+        property_animation_destroy(s_box_animation);
+        shakeOption = shakeOption3;
+        run_animation();  
+        second_animation_is_running = false;
+     }
+*/
+  } else{
+    
   }
+  
+  
+  
+  
+  
   /*
   if (persist_exists(KEY_SHAKEACTION) && (int)persist_read_int(KEY_SHAKEACTION) > 0) { 
      shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
@@ -636,7 +753,7 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
         persist_write_string(KEY_STOCKS, stocks_v);
     }
   
- APP_LOG(APP_LOG_LEVEL_DEBUG, "before tuple shakeaction"); 
+ 
   
     Tuple *shakeAction = dict_find(iterator, KEY_SHAKEACTION);
     if (shakeAction) {
@@ -644,7 +761,9 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
         persist_write_int(KEY_SHAKEACTION, shakeAction_v);  
       //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
     }  
- APP_LOG(APP_LOG_LEVEL_DEBUG, "after tuple shakeaction");      
+  
+  
+ 
        
       
     Tuple *stocksList = dict_find(iterator, KEY_STOCKSLIST);
@@ -654,7 +773,28 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
         persist_write_string(KEY_STOCKSLIST, stocksList_v);
     }
   
-  
+  Tuple *shakeAction2 = dict_find(iterator, KEY_SHAKEACTION2);
+    if (shakeAction2) {
+        uint8_t shakeAction2_v = shakeAction2->value->int8;
+        persist_write_int(KEY_SHAKEACTION2, shakeAction2_v);  
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
+    } 
+  /*
+  Tuple *shakeAction3 = dict_find(iterator, KEY_SHAKEACTION3);
+    if (shakeAction) {
+        uint8_t shakeAction3_v = shakeAction3->value->int8;
+        persist_write_int(KEY_SHAKEACTION3, shakeAction3_v);  
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
+    } 
+ */ 
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "before Tuple speedMultiplier");  
+   Tuple *speedMultiplier = dict_find(iterator, KEY_SPEEDMULTIPLIER);
+    if (speedMultiplier) {
+     APP_LOG(APP_LOG_LEVEL_DEBUG, "speedMultiplier = true");
+        strcpy(speedMultiplier_v,speedMultiplier->value->cstring);
+        persist_write_string(KEY_SPEEDMULTIPLIER, speedMultiplier_v);
+    } 
+ APP_LOG(APP_LOG_LEVEL_DEBUG, "after Tuple speedMultiplier");   
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Configs persisted. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     destroy_text_layers();
     create_text_layers(watchface);

@@ -5,6 +5,9 @@ var WUNDERGROUND = 1;
 var YAHOO = 2;  
 
 var shakeAction = 0;
+var shakeAction2 = 0;
+//var shakeAction3 = 0;
+var speedMultiplier = '';
 var stocksList = '';
 
 var stock_prices = '';
@@ -345,8 +348,13 @@ Pebble.addEventListener('appmessage',
 console.log ('setting weatherPins ' + weatherPins);
           
            shakeAction = parseInt(localStorage.shakeAction,10);
+       
 console.log ('setting shakeAction ' + shakeAction);
            stocksList = localStorage.stocksList;
+           shakeAction2 = parseInt(localStorage.shakeAction2,10);
+           //shakeAction3 = parseInt(localStorage.shakeAction3,10);
+           speedMultiplier = localStorage.speedMultiplier;          
+console.log ('speedMultiplier = ' + speedMultiplier);    
 console.log ('setting stocksList ' + stocksList );          
             var weatherKey = localStorage.weatherKey;  
             var provider = weatherKey ? 1 : 0;  
@@ -373,7 +381,7 @@ console.log ('setting stocksList ' + stocksList );
 //});
   
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.2');
+    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.3');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -384,6 +392,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     for (var item in configData) {
         var key = 'KEY_' + item.toUpperCase();
+      console.log (key + ' = ' + configData[item]);
         var value = configData[item];
         if (String(value).indexOf('0x') !== -1) {
             value = parseInt(value, 16);
@@ -394,9 +403,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
             dict[key + 'MINUTES'] = parseInt(value.split('|')[1].split(':')[1], 10);
             value = parseInt(newValue, 10);
         }
-        if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_SHAKEACTION' || key === 'KEY_WEATHERPINS' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER'  ){
+        if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_SHAKEACTION' || key === 'KEY_SHAKEACTION2' || key === 'KEY_SHAKEACTION3' || key === 'KEY_WEATHERPINS' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER'  ){
             value = parseInt(value, 10);
         }
+        
         dict[key] = value;
     }
 
@@ -409,6 +419,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
     localStorage['weatherPins'] = dict['KEY_WEATHERPINS'];
     localStorage['shakeAction'] = dict['KEY_SHAKEACTION'];
     localStorage['stocksList'] = dict['KEY_STOCKSLIST'];
+    localStorage['shakeAction2'] = dict['KEY_SHAKEACTION2'];
+    //localStorage['shakeAction3'] = dict['KEY_SHAKEACTION3'];
+    localStorage['speedMultiplier'] = dict['KEY_SPEEDMULTIPLIER'];
     localStorage.weatherProvider = dict.KEY_WEATHERPROVIDER;  
     localStorage.yahooKey = dict.KEY_YAHOOKEY;  
     delete dict.KEY_WEATHERKEY;  
@@ -1038,16 +1051,18 @@ function executeYahooFinanceQuery() {
 console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);  
   
   console.log('stockslist '+stocksList);
-     if (shakeAction > 2){
-      url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent('^DJI,^GSPC') + '/quote?format=json&view=detail';
-     } else {
+     
        if (stocksList.length > 0){
-       url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) +'/quote?format=json&view=detail';
+          if ((shakeAction > 2) || (shakeAction2 > 2) ){
+            url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) + ',' + encodeURIComponent('^DJI,^GSPC') +'/quote?format=json&view=detail';
+          } else {
+             url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) +'/quote?format=json&view=detail';
+          }
        } else{
          url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent('^DJI,^GSPC') + '/quote?format=json&view=detail';
        }
-         
-     }
+     
+     
  
   stock_prices = "";
 
@@ -1170,7 +1185,7 @@ function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherP
     // will populate stock_prices
     console.log ('getWeather - shakeAction ' +shakeAction);
     stock_prices = "";
-    if (shakeAction > 1 ) {
+    if ((shakeAction > 1) || (shakeAction2 > 1)){
       executeYahooFinanceQuery();
     }
   
