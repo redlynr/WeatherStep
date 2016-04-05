@@ -8,19 +8,23 @@
 #include "weather.h"
 
 #if (PBL_PLATFORM_APLITE)
-static char stocks_v[300];
+//static char stocks_v[300];
 static char stocksList_v[50];
+//static char rss_v[250];
 static char speedMultiplier[5];
 static char speedMultiplier_v[5];
 static char ticker_buffer[200];
 #else
-static char stocks_v[500];
+//static char stocks_v[250];
+//static char rss_v[250];
 static char stocksList_v[100];
 static char speedMultiplier[10];
 static char speedMultiplier_v[10];
-static char ticker_buffer[500];
+static char ticker_buffer[200];
 #endif
 
+static char temp_buffer[200];
+static int rss_counter = 1;
 
 //static char speedMultiplier[5];
 //static char speedMultiplier_v[5];
@@ -40,11 +44,11 @@ static PropertyAnimation *s_box_animation;
 static int shakeOption;
 static int shakeOption1;
 static int shakeOption2;
-//static int shakeOption3;
+static int shakeOption3;
 
 bool first_animation_is_running = false;
 bool second_animation_is_running = false;
-//bool third_animation_is_running = false;
+bool third_animation_is_running = false;
 
 //char forecast_val[1000];
 //char stocks_val[500];
@@ -85,9 +89,9 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context) {
    } else if (second_animation_is_running) {
      second_animation_is_running = false;
    } 
- //   else if (third_animation_is_running) {
- //    third_animation_is_running = false;
- //  }
+    else if (third_animation_is_running) {
+     third_animation_is_running = false;
+   }
     
   set_ticker(" ");
   hide_ticker(shakeOption);
@@ -124,37 +128,18 @@ void run_animation(){
   
   float speed;
   float speed_adj;
+  int anim_delay;
   
- if (first_animation_is_running) {
-   second_animation_is_running = true;
- } else if(second_animation_is_running){
-   //third_animation_is_running = true;
- } else {
-   first_animation_is_running = true; 
- }
-  
+ 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Let's run the animation");
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  (int)persist_read_int(KEY_SHAKEACTION));
  create_ticker();
  set_ticker("initializeed"); 
  
-  
-if (shakeOption < 1) { 
-    if (first_animation_is_running){
-      first_animation_is_running = false;
-      return;  
-    }
-    if (second_animation_is_running){
-      second_animation_is_running = false;
-      return;        
-    }
-    //if (third_animation_is_running){
-    //  third_animation_is_running = false;
-    //  return;        
-    //}
-}
-  
+
+
+
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action %d",  shakeOption);
   
@@ -185,11 +170,67 @@ if (shakeOption < 1) {
           set_ticker("Unfortunately, no forecast :(");
       } 
   }
+ 
+  
+  if (shakeOption == 4) { 
+    
+    if (rss_counter == 1){
+    
+      if (persist_exists(KEY_RSS)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating rss1 from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+          
+            persist_read_string(KEY_RSS, ticker_buffer, sizeof(ticker_buffer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "rss1 %s",ticker_buffer);
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of ticker_buffer. %d",(int)sizeof(ticker_buffer));
+            if(sizeof(ticker_buffer)>0){
+              set_ticker(ticker_buffer);
+              }
+      } else {
+          set_ticker("Unfortunately, no rss :(");
+      } 
+    } else if (rss_counter == 2){
+      if (persist_exists(KEY_RSS2)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating rss2 from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+          
+            persist_read_string(KEY_RSS2, ticker_buffer, sizeof(ticker_buffer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "rss2 %s",ticker_buffer);
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of ticker_buffer. %d",(int)sizeof(ticker_buffer));
+            if(sizeof(ticker_buffer)>0){
+              set_ticker(ticker_buffer);
+              }
+      } else {
+          set_ticker("Unfortunately, no 2nd rss :(");
+      } 
+    } else if (rss_counter == 3){
+      if (persist_exists(KEY_RSS3)) {
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating rss3 from storage. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
+          
+            persist_read_string(KEY_RSS3, ticker_buffer, sizeof(ticker_buffer));
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "rss3 %s",ticker_buffer);
+            APP_LOG(APP_LOG_LEVEL_DEBUG, "size of ticker_buffer. %d",(int)sizeof(ticker_buffer));
+            if(sizeof(ticker_buffer)>0){
+              set_ticker(ticker_buffer);
+              }
+      } else {
+          set_ticker("Unfortunately, no 3rd rss :(");
+      } 
+    }
+  
+        
+        
+        
+        
+  rss_counter = rss_counter + 1;
+  if (rss_counter > 3){
+    rss_counter = 1;
+  }
   
   
+  }
   
-  display_ticker(shakeOption);
-  
+  if (shakeOption > 0){
+    display_ticker(shakeOption);
+  }
  
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "ticker pixels %d ",ticker_pixels);
@@ -197,7 +238,8 @@ if (shakeOption < 1) {
   GRect start_frame = GRect(width, date_top, ticker_pixels, 40);
   GRect finish_frame = GRect(-ticker_pixels, date_top, 5000, 40);
  
- 
+  
+  
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Before creating property animation %d free",(int)heap_bytes_free());
     
@@ -218,13 +260,24 @@ if (shakeOption < 1) {
   }
   APP_LOG(APP_LOG_LEVEL_DEBUG, "speed  %d ",(int)speed);
   
+  /*
+  if (shakeOption ==0){
+    finish_frame = start_frame;
+    anim_delay = 2000;
+    speed = 0;
+  } else{
+    anim_delay = 0;
+  }
+  */
+  anim_delay = 0;
+  
   s_box_animation = property_animation_create_layer_frame(text_layer_get_layer(ticker_text), &start_frame, &finish_frame);
   animation_set_handlers((Animation*)s_box_animation, (AnimationHandlers) {
     .stopped = anim_stopped_handler
   }, NULL);
   animation_set_duration((Animation*)s_box_animation, (int)speed );
   animation_set_curve((Animation*)s_box_animation, AnimationCurveLinear);
-  animation_set_delay((Animation*)s_box_animation, 0);
+  animation_set_delay((Animation*)s_box_animation, anim_delay);
 
   animation_schedule((Animation*)s_box_animation);
   
@@ -257,7 +310,7 @@ if (persist_exists(KEY_SHAKEACTION2)){
     }
 
 }
-/*  
+ 
 if (persist_exists(KEY_SHAKEACTION3)){ 
     shakeOption3 = (int)persist_read_int(KEY_SHAKEACTION3);
     if (shakeOption3 >= 48){
@@ -265,59 +318,52 @@ if (persist_exists(KEY_SHAKEACTION3)){
     }
 
 }
-*/  
+  
+  
+APP_LOG(APP_LOG_LEVEL_DEBUG, "shakeOption1 %d",shakeOption1); 
+APP_LOG(APP_LOG_LEVEL_DEBUG, "shakeOption2 %d",shakeOption2); 
+APP_LOG(APP_LOG_LEVEL_DEBUG, "shakeOption3 %d",shakeOption3); 
+  
+
   
   // Play the animation
   
-  if (!first_animation_is_running && !second_animation_is_running ) {
+  if (!first_animation_is_running && !second_animation_is_running && !third_animation_is_running ) {
    shakeOption = shakeOption1;
+   first_animation_is_running = true;
    run_animation();
   } else if (first_animation_is_running && !second_animation_is_running) {
-      if (shakeOption2 > 0){
+      //if (shakeOption2 > 0){
         set_ticker(" ");
         hide_ticker(shakeOption);
         destroy_ticker();  
         property_animation_destroy(s_box_animation);
         shakeOption = shakeOption2;
-        run_animation();
+         APP_LOG(APP_LOG_LEVEL_DEBUG, "time to run 2nd anim"); 
+        second_animation_is_running = true;
         first_animation_is_running = false;
-      }
- /*   
- } else if (second_animation_is_running && !third_animation_is_running) {
-     if (shakeOption3 > 0){
+        run_animation();
+      //}
+  }else if (second_animation_is_running && !third_animation_is_running) {
+     //if (shakeOption3 > 0){
         set_ticker(" ");
         hide_ticker(shakeOption);
         destroy_ticker();  
         property_animation_destroy(s_box_animation);
         shakeOption = shakeOption3;
+       APP_LOG(APP_LOG_LEVEL_DEBUG, "time to run 3rd anim"); 
+        second_animation_is_running = false;
+        third_animation_is_running = true;
         run_animation();  
         second_animation_is_running = false;
-     }
-*/
-  } else{
-    
+     //} 
+
+  } else if(third_animation_is_running) {
+    third_animation_is_running = false;
   }
   
-  
-  
-  
-  
-  /*
-  if (persist_exists(KEY_SHAKEACTION) && (int)persist_read_int(KEY_SHAKEACTION) > 0) { 
-     shakeOption = (int)persist_read_int(KEY_SHAKEACTION);
-    if (shakeOption >= 48){
-      shakeOption = shakeOption - 48;
-    }
-    if (shakeOption > 0){
-      run_animation();
-    }
-  }
-  */
-  
-  
+
 }
-
-
 
 static void update_time() {
     // Get a tm structure
@@ -498,10 +544,50 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 1");
         int update_val = update_tuple->value->int8;
         persist_write_int(KEY_HASUPDATE, update_val);
         notify_update(update_val);
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after update_tuple");
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after update_tuple");
         return;
     }
 
+ Tuple *rss_tuple = dict_find(iterator, KEY_RSS);
+    if (rss_tuple) {
+        strncpy(temp_buffer, rss_tuple->value->cstring,200);   
+        store_rss_value(temp_buffer);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "rss %s ",temp_buffer);  
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after rss_tuple");
+        return;
+    } 
+  
+  Tuple *rss_tuple2 = dict_find(iterator, KEY_RSS2);
+    if (rss_tuple2) {
+        strncpy(temp_buffer, rss_tuple2->value->cstring,200);   
+        store_rss_value2(temp_buffer);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "rss %s ",temp_buffer);  
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after rss_tuple");
+        return;
+    } 
+  
+  Tuple *rss_tuple3 = dict_find(iterator, KEY_RSS3);
+    if (rss_tuple3) {
+        strncpy(temp_buffer, rss_tuple3->value->cstring,200);   
+        store_rss_value3(temp_buffer);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "rss %s ",temp_buffer);  
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after rss_tuple");
+        return;
+    } 
+ 
+  Tuple *stocks_tuple = dict_find(iterator, KEY_STOCKS);
+    if (stocks_tuple) {
+        strncpy(temp_buffer, stocks_tuple->value->cstring,200);      
+        store_stocks_value(temp_buffer);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "stocks %s ",temp_buffer); 
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "returning after stocks_tuple");
+        return;
+    } 
+  
+          
+  
+  
+  
  APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 2");   
     
     Tuple *temp_tuple = dict_find(iterator, KEY_TEMP);
@@ -509,9 +595,10 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 1");
     Tuple *min_tuple = dict_find(iterator, KEY_MIN);
     Tuple *weather_tuple = dict_find(iterator, KEY_WEATHER);
     Tuple *forecast_tuple = dict_find(iterator, KEY_FORECAST);
-    Tuple *stocks_tuple = dict_find(iterator, KEY_STOCKS);
+//    Tuple *stocks_tuple = dict_find(iterator, KEY_STOCKS);
+//    Tuple *rss_tuple = dict_find(iterator, KEY_RSS);
 APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 3");  
-    if (forecast_tuple && stocks_tuple && temp_tuple && max_tuple && min_tuple && weather_tuple && is_weather_enabled()) {
+    if (forecast_tuple && temp_tuple && max_tuple && min_tuple && weather_tuple && is_weather_enabled()) {
 APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 4");      
         int temp_val = (int)temp_tuple->value->int32;
         int max_val = (int)max_tuple->value->int32;
@@ -530,15 +617,23 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
 //        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_val, stocks_val); // KAH 2/26/2016
 //        store_weather_values(temp_val, max_val, min_val, weather_val, forecast_key_buffer, stocks_key_buffer);
         store_weather_values(temp_val, max_val, min_val, weather_val);
-        strcpy(ticker_buffer, forecast_tuple->value->cstring);
-        store_forecast_value(ticker_buffer);
-        strcpy(ticker_buffer, stocks_tuple->value->cstring);      
-        store_stocks_value(ticker_buffer);
+
+        strncpy(temp_buffer, forecast_tuple->value->cstring,200);
+        store_forecast_value(temp_buffer);
+       APP_LOG(APP_LOG_LEVEL_DEBUG, "forecast %s ",temp_buffer);
+        ////strncpy(temp_buffer, stocks_tuple->value->cstring,200);      
+       // store_stocks_value(temp_buffer);
+       //APP_LOG(APP_LOG_LEVEL_DEBUG, "stocks %s ",temp_buffer);
+        //strncpy(temp_buffer, rss_tuple->value->cstring,200);   
+        //store_rss_value(temp_buffer);
+       //APP_LOG(APP_LOG_LEVEL_DEBUG, "rss %s ",temp_buffer);   
       
         get_health_data();
 
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather data updated. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
-
+first_animation_is_running = false;
+second_animation_is_running = false;
+third_animation_is_running = false; 
         return;
     }
   
@@ -753,15 +848,17 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
         uint8_t weatherPins_v = weatherPins->value->int8;
         persist_write_int(KEY_WEATHERPINS, weatherPins_v);
     }
-  
+
+  /*
     Tuple *stocks = dict_find(iterator, KEY_STOCKS);
     if (stocks) {
         //stocks_v[]= stocks->value->cstring;
         strcpy(stocks_v,stocks->value->cstring);
         persist_write_string(KEY_STOCKS, stocks_v);
     }
+ */ 
   
- 
+  
     Tuple *shakeAction = dict_find(iterator, KEY_SHAKEACTION);
     if (shakeAction) {
         uint8_t shakeAction_v = shakeAction->value->int8;
@@ -785,14 +882,8 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
         persist_write_int(KEY_SHAKEACTION2, shakeAction2_v);  
       //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
     } 
-  /*
-  Tuple *shakeAction3 = dict_find(iterator, KEY_SHAKEACTION3);
-    if (shakeAction) {
-        uint8_t shakeAction3_v = shakeAction3->value->int8;
-        persist_write_int(KEY_SHAKEACTION3, shakeAction3_v);  
-      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
-    } 
- */ 
+  
+ 
  APP_LOG(APP_LOG_LEVEL_DEBUG, "before Tuple speedMultiplier");  
    Tuple *speedMultiplier = dict_find(iterator, KEY_SPEEDMULTIPLIER);
     if (speedMultiplier) {
@@ -800,6 +891,36 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received callback 5");
         strcpy(speedMultiplier_v,speedMultiplier->value->cstring);
         persist_write_string(KEY_SPEEDMULTIPLIER, speedMultiplier_v);
     } 
+ 
+  
+ Tuple *shakeAction3 = dict_find(iterator, KEY_SHAKEACTION3);
+    if (shakeAction) {
+        uint8_t shakeAction3_v = shakeAction3->value->int8;
+        persist_write_int(KEY_SHAKEACTION3, shakeAction3_v);  
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
+    } 
+  
+ Tuple *specifiedRSS = dict_find(iterator, KEY_SPECIFIEDRSS);
+    if (specifiedRSS) {
+        uint8_t specifiedRSS_v = specifiedRSS->value->int8;
+        persist_write_int(KEY_SPECIFIEDRSS, specifiedRSS_v);  
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Shake Action Pin %d", shakeAction_v);   
+    }  
+
+  /*
+ Tuple *rss = dict_find(iterator, KEY_RSS);
+    if (rss) {
+        //stocks_v[]= stocks->value->cstring;
+        strcpy(rss_v,rss->value->cstring);
+        persist_write_string(KEY_RSS, rss_v);
+    }  
+  
+*/
+  
+first_animation_is_running = false;
+second_animation_is_running = false;
+third_animation_is_running = false; 
+  
  APP_LOG(APP_LOG_LEVEL_DEBUG, "after Tuple speedMultiplier");   
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Configs persisted. %d%d", (int)time(NULL), (int)time_ms(NULL, NULL));
     destroy_text_layers();

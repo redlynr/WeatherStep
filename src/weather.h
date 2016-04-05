@@ -10,6 +10,7 @@ bool is_weather_enabled();
 
 void store_forecast_value(char forecast_val[]);
 void store_stocks_value(char stocks_val[]);
-
-
+void store_rss_value(char rss_val[]);
+void store_rss_value2(char rss_val[]);
+void store_rss_value3(char rss_val[]);
 #endif

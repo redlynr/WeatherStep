@@ -5,7 +5,7 @@
 static bool weather_enabled;
 static bool use_celsius; // KAH 2/26/2016
 static int weather_pins;
-static char weather_key_buffer[20]; // KAH 2/26/2016
+//static char weather_key_buffer[20]; // KAH 2/26/2016
 static bool health_enabled;
 
 
@@ -151,11 +151,11 @@ void toggle_weather(bool from_configs) {
     if (weather_enabled) {
       
         // KAH 2/26/2016
-        if (persist_exists(KEY_WEATHERKEY)) {
-            persist_read_string(KEY_WEATHERKEY, weather_key_buffer, sizeof(weather_key_buffer));
-        } else {
-            weather_key_buffer[0] = '\0';
-        }
+        //if (persist_exists(KEY_WEATHERKEY)) {
+        //    persist_read_string(KEY_WEATHERKEY, weather_key_buffer, sizeof(weather_key_buffer));
+        //} else {
+        //    weather_key_buffer[0] = '\0';
+        //}
         use_celsius = persist_exists(KEY_USECELSIUS) && persist_read_int(KEY_USECELSIUS);
         weather_pins = persist_exists(KEY_WEATHERPINS) && persist_read_int(KEY_WEATHERPINS);
 APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c Weather1 Pin %d", weather_pins); 
@@ -211,10 +211,29 @@ void store_weather_values(int temp, int max, int min, int weather) {
 }
 
 void store_forecast_value(char forecast_val[]){
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c forecast %s",forecast_val);
   persist_write_string(KEY_FORECAST, forecast_val);
 }
 void store_stocks_value(char stocks_val[]){
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c stocks %s",stocks_val);
   persist_write_string(KEY_STOCKS, stocks_val);
+}
+
+void store_rss_value(char rss_val[]){
+ 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c rss %s",rss_val);
+  persist_write_string(KEY_RSS, rss_val);
+}
+void store_rss_value2(char rss_val[]){
+ 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c rss %s",rss_val);
+  persist_write_string(KEY_RSS2, rss_val);
+}
+void store_rss_value3(char rss_val[]){
+ 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "weather.c rss %s",rss_val);
+  persist_write_string(KEY_RSS3, rss_val);
 }
 
 bool is_weather_enabled() {

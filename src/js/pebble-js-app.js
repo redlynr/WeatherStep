@@ -1,4 +1,9 @@
-var currentVersion = "4.5";
+var currentVersion = "5.4";
+
+
+
+
+
 var tempUnit;
 var OPEN_WEATHER = 0;  
 var WUNDERGROUND = 1;  
@@ -6,12 +11,19 @@ var YAHOO = 2;
 
 var shakeAction = 0;
 var shakeAction2 = 0;
-//var shakeAction3 = 0;
+var shakeAction3 = 0;
 var speedMultiplier = '';
 var stocksList = '';
+var specifiedRSS = 0;
+
 
 var stock_prices = '';
+var rss = '';
+var rss2 = '';
+var rss3 = '';
 
+var needtosendstocks = false;
+var needtosendrss = false;
 
 var sendError = function() {
     Pebble.sendAppMessage({'KEY_ERROR': true},
@@ -310,9 +322,6 @@ function iftttRequest(pin) {
 
 
 
-
-
-
 Pebble.addEventListener("ready",
     function(e) {
         console.log("Pebble Ready!");
@@ -333,14 +342,20 @@ Pebble.addEventListener('appmessage',
     function(e) {
         console.log('AppMessage received!');
         if (e.payload.KEY_HASUPDATE) {
-//            console.log('Checking for updates...');
-//            checkForUpdates();
-        //} 
-        //else if (e.payload.KEY_STOCKS) {
-        //    console.log('Fetching stocks info...');
-        //    executeYahooFinanceQuery();
 
-        } else  {
+
+        } 
+      
+        else if (e.payload.KEY_STOCKS && needtosendstocks) {
+         needtosendstocks = false;
+
+        }     
+       else if (e.payload.KEY_RSS && needtosendrss) {
+         needtosendrss = false;
+
+        }   
+      
+      else  {
             console.log('Fetching weather info...');
 //            getWeather(localStorage['weatherKey'], parse(localStorage['useCelsius'].toLowerCase()), localStorage['overrideLocation']);
             var weatherPins = parseInt(localStorage.weatherPins,10);
@@ -351,8 +366,9 @@ console.log ('setting weatherPins ' + weatherPins);
        
 console.log ('setting shakeAction ' + shakeAction);
            stocksList = localStorage.stocksList;
+           specifiedRSS = parseInt(localStorage.specifiedRSS,10);
            shakeAction2 = parseInt(localStorage.shakeAction2,10);
-           //shakeAction3 = parseInt(localStorage.shakeAction3,10);
+           shakeAction3 = parseInt(localStorage.shakeAction3,10);
            speedMultiplier = localStorage.speedMultiplier;          
 console.log ('speedMultiplier = ' + speedMultiplier);    
 console.log ('setting stocksList ' + stocksList );          
@@ -381,7 +397,7 @@ console.log ('setting stocksList ' + stocksList );
 //});
   
 Pebble.addEventListener('showConfiguration', function(e) {
-    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.3');
+    Pebble.openURL('http://www.actulife.com/WeatherStep/v5.5');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -403,7 +419,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
             dict[key + 'MINUTES'] = parseInt(value.split('|')[1].split(':')[1], 10);
             value = parseInt(newValue, 10);
         }
-        if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_SHAKEACTION' || key === 'KEY_SHAKEACTION2' || key === 'KEY_SHAKEACTION3' || key === 'KEY_WEATHERPINS' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER'  ){
+      if (key === 'KEY_FONTTYPE' || key === 'KEY_DATEFORMAT' || key === 'KEY_SHAKEACTION' || key === 'KEY_SHAKEACTION2' || key === 'KEY_SHAKEACTION3' || key === 'KEY_SPECIFIEDRSS' || key === 'KEY_WEATHERPINS' || key === 'KEY_LOCALE' || key == 'KEY_WEATHERPROVIDER'  ){
             value = parseInt(value, 10);
         }
         
@@ -420,15 +436,17 @@ Pebble.addEventListener('webviewclosed', function(e) {
     localStorage['shakeAction'] = dict['KEY_SHAKEACTION'];
     localStorage['stocksList'] = dict['KEY_STOCKSLIST'];
     localStorage['shakeAction2'] = dict['KEY_SHAKEACTION2'];
-    //localStorage['shakeAction3'] = dict['KEY_SHAKEACTION3'];
+    localStorage['shakeAction3'] = dict['KEY_SHAKEACTION3'];
     localStorage['speedMultiplier'] = dict['KEY_SPEEDMULTIPLIER'];
+    localStorage['specifiedRSS'] = dict['KEY_SPECIFIEDRSS'];
+  
     localStorage.weatherProvider = dict.KEY_WEATHERPROVIDER;  
     localStorage.yahooKey = dict.KEY_YAHOOKEY;  
     delete dict.KEY_WEATHERKEY;  
     delete dict.KEY_WEATHERPROVIDER;  
     delete dict.KEY_OVERRIDELOCATION;  
     delete dict.KEY_YAHOOKEY;  
-
+   
 
     Pebble.sendAppMessage(dict, function() {
 	console.log('Send config successful: ' + JSON.stringify(dict));
@@ -587,7 +605,7 @@ if (weatherPins === 2){
                
                
  
-                 sendData(temp, max, min, condition, forecast_text, stock_prices); 
+                 sendData(temp, max, min, condition, forecast_text); 
                  
              } catch (ex) { 
                  console.log(ex); 
@@ -870,7 +888,7 @@ console.log("pinID = " + pinID);
           console.log ('description ',desc);
           console.log ('stock_prices ' + stock_prices);
             //sendData(temp, max, min, condition, forecast_text, stock_prices);
-          sendData(temp, max, min, condition, desc, stock_prices);
+          sendData(temp, max, min, condition, desc);
              
         } catch(ex) {
             //console.log(ex);
@@ -989,7 +1007,7 @@ if (weatherPins === 2){
             console.log('Result: ' + responseText);
           });
 
-                    sendData(temp, max, min, condition, forecast_text, stock_prices);
+                    sendData(temp, max, min, condition, forecast_text);
                    
                 } catch (ex) {
                     console.log('Failure requesting forecast data from OpenWeatherMap');
@@ -1015,15 +1033,13 @@ function kelvinToFahrenheit(temp) {
 }
 
 function sendData(temp, max, min, condition, forecast) {
-  stock_prices=stock_prices +'\0';
-  forecast = forecast + '\0';
+  
     var data = {
         'KEY_TEMP': temp,
         'KEY_MAX': max,
         'KEY_MIN': min,
         'KEY_WEATHER': condition,
-        'KEY_FORECAST': forecast,
-        'KEY_STOCKS': stock_prices
+        'KEY_FORECAST': forecast
     };
 
     console.log(JSON.stringify(data));
@@ -1036,9 +1052,73 @@ function sendData(temp, max, min, condition, forecast) {
             console.log('Error sending weather info to Pebble!');
         }
     );
+  
+}
+function sendStocksData() {
+  var data1 = {
+    'KEY_STOCKS': stock_prices
+  };
+  console.log(JSON.stringify(data1));
+    needtosendstocks = true;
+    Pebble.sendAppMessage(data1,
+        function(e) {
+            console.log('stocks info sent to Pebble successfully!');
+        },
+        function(e) {
+            console.log('Error sending stocks info to Pebble!');
+        }
+    );
+} 
+
+function sendRSSData1() {
+  var data2 = {
+    'KEY_RSS': rss
+  };
+  console.log(JSON.stringify(data2));
+    needtosendrss = true;
+    Pebble.sendAppMessage(data2,
+        function(e) {
+            console.log('rss info sent to Pebble successfully!');
+        },
+        function(e) {
+            console.log('Error sending rss info to Pebble!');
+        }
+    );
+  
 }
 
-
+function sendRSSData2() {
+  var data2 = {
+    'KEY_RSS2': rss2
+  };
+  console.log(JSON.stringify(data2));
+    needtosendrss = true;
+    Pebble.sendAppMessage(data2,
+        function(e) {
+            console.log('rss info sent to Pebble successfully!');
+        },
+        function(e) {
+            console.log('Error sending rss info to Pebble!');
+        }
+    );
+  
+}
+function sendRSSData3() {
+  var data2 = {
+    'KEY_RSS3': rss3
+  };
+  console.log(JSON.stringify(data2));
+    needtosendrss = true;
+    Pebble.sendAppMessage(data2,
+        function(e) {
+            console.log('rss info sent to Pebble successfully!');
+        },
+        function(e) {
+            console.log('Error sending rss info to Pebble!');
+        }
+    );
+  
+}
 
 function locationError(err) {
     console.log('Error requesting location!');
@@ -1053,7 +1133,7 @@ console.log('executeYahooFinanceQuery - shakeAction ' + shakeAction);
   console.log('stockslist '+stocksList);
      
        if (stocksList.length > 0){
-          if ((shakeAction > 2) || (shakeAction2 > 2) ){
+          if ((shakeAction > 2) || (shakeAction2 > 2) || (shakeAction3 > 2) ){
             url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) + ',' + encodeURIComponent('^DJI,^GSPC') +'/quote?format=json&view=detail';
           } else {
              url = 'http://finance.yahoo.com/webservice/v1/symbols/' + encodeURIComponent(stocksList) +'/quote?format=json&view=detail';
@@ -1155,7 +1235,7 @@ if (weatherPins === 2){
 */               
                
  
-                 //sendStocksData(stock_prices); 
+                 sendStocksData(); 
                
              } catch (ex) { 
                  console.log(ex); 
@@ -1167,6 +1247,64 @@ if (weatherPins === 2){
 
 
 
+function executeYahooRSSQuery() { 
+     var url = '';
+   
+console.log('executeYahooRSSQuery - shakeAction ' + shakeAction);  
+  
+  
+//     var feed = 'http://news.yahoo.com/rss/topstories';
+     
+//    url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20feed%20where%20url%3D' + encodeURIComponent(feed) +'&format=json&diagnostics=true&callback=';
+//  url='http%3A%2F%2Fnews.yahoo.com%2Frss%2Ftopstories';   
+//  url ='https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20feed%20where%20url%3D' + feed + '&format=json&diagnostics=true&callback=';
+ url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20feed%20where%20url%3D'http%3A%2F%2Fnews.yahoo.com%2Frss%2Ftopstories'&format=json&diagnostics=true&callback=";
+  
+  var feed=[];
+  
+feed[0] = "http://news.yahoo.com/rss/topstories";
+feed[1] = "http://finance.yahoo.com/rss/topstories";
+feed[2] = "http://news.yahoo.com/rss/us";
+feed[3] = "http://news.yahoo.com/rss/sports";  
+feed[4] = "http://news.yahoo.com/rss/movies";
+feed[5] = "http://news.yahoo.com/rss/business";  
+feed[6] = "http://news.yahoo.com/rss/politics";
+feed[7] = "http://news.yahoo.com/rss/world";
+  
+  console.log("feed "+feed[specifiedRSS]);
+  
+ url =  "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20feed%20where%20url%3D'" + encodeURIComponent(feed[specifiedRSS]) +  "'&format=json&diagnostics=true&callback=";
+  
+  rss = '';
+
+
+ 
+ console.log("calling Yahoo RSS ",url);
+ console.log(url); 
+         xhrRequest(url, 'GET',function(responseText) { 
+             try { 
+                 var count = JSON.parse(responseText).query.count;
+               console.log('RSS count: ' + count);
+                 rss = JSON.parse(responseText).query.results.item[0].title; 
+                 rss2 = JSON.parse(responseText).query.results.item[1].title; 
+                 rss3 = JSON.parse(responseText).query.results.item[2].title; 
+              
+console.log("rss",rss);         
+  
+     
+               
+ 
+              sendRSSData1(); 
+              sendRSSData2(); 
+              sendRSSData3(); 
+               
+             } catch (ex) { 
+                 console.log(ex); 
+                 console.log('problems with rss');
+             } 
+         }); 
+
+ } 
 
 
 
@@ -1186,8 +1324,13 @@ function getWeather(provider, weatherKey, useCelsius, overrideLocation, weatherP
     // will populate stock_prices
     console.log ('getWeather - shakeAction ' +shakeAction);
     stock_prices = "";
-    if ((shakeAction > 1) || (shakeAction2 > 1)){
+    rss = "";
+    if ((shakeAction > 1) || (shakeAction2 > 1) || (shakeAction3 > 1)){
       executeYahooFinanceQuery();
+    }
+  
+    if ((shakeAction > 3) || (shakeAction2 > 3) || (shakeAction3 > 3)){
+      executeYahooRSSQuery();
     }
   
     console.log('Requesting weather: ' + provider + ', ' + weatherKey + ', ' + useCelsius + ', ' + overrideLocation+', ',weatherPins);  

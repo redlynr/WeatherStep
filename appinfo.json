@@ -25,10 +25,14 @@
         "KEY_MINCOLOR": 20,
         "KEY_NOLEADINGZERO": 38,
         "KEY_OVERRIDELOCATION": 31,
+        "KEY_RSS": 51,
+        "KEY_RSS2": 53,
+        "KEY_RSS3": 54,
         "KEY_SHAKEACTION": 46,
         "KEY_SHAKEACTION2": 48,
         "KEY_SHAKEACTION3": 49,
         "KEY_SHOWSLEEP": 6,
+        "KEY_SPECIFIEDRSS": 52,
         "KEY_SPEEDMULTIPLIER": 50,
         "KEY_STEPSCOLOR": 22,
         "KEY_STOCKS": 44,
@@ -93,9 +97,9 @@
                 "type": "png-trans"
             },
             {
-                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
+                "characterRegex": "[\uf058\uf044]",
                 "file": "fonts/weathericons-regular-webfont.ttf",
-                "name": "FONT_WEATHER_34",
+                "name": "FONT_WEATHER_28",
                 "targetPlatforms": null,
                 "type": "font"
             },
@@ -107,9 +111,9 @@
                 "type": "font"
             },
             {
-                "characterRegex": "[\uf058\uf044]",
+                "characterRegex": "[\uf003\uf058\uf044\uf00d\uf002\uf0b6\uf008\uf0b2\uf00a\uf00e\uf00c\uf02e\uf086\uf028\uf02a\uf02c\uf031\uf04a\uf036\uf037\uf0b3\uf038\uf03a\uf081\uf013\uf019\uf01a\uf01b\uf01d\uf01b\uf0b5\uf07b]",
                 "file": "fonts/weathericons-regular-webfont.ttf",
-                "name": "FONT_WEATHER_28",
+                "name": "FONT_WEATHER_34",
                 "targetPlatforms": null,
                 "type": "font"
             },
@@ -122,17 +126,7 @@
             },
             {
                 "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_35",
-                "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
-                ],
-                "type": "font"
-            },
-            {
-                "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_30",
+                "name": "FONT_PERFECT_DOS_46",
                 "targetPlatforms": [
                     "aplite",
                     "basalt",
@@ -152,7 +146,17 @@
             },
             {
                 "file": "fonts/Prototype.ttf",
-                "name": "FONT_PERFECT_DOS_46",
+                "name": "FONT_PERFECT_DOS_30",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "font"
+            },
+            {
+                "file": "fonts/Prototype.ttf",
+                "name": "FONT_PERFECT_DOS_35",
                 "targetPlatforms": [
                     "aplite",
                     "basalt",
@@ -165,12 +169,11 @@
     "sdkVersion": "3",
     "shortName": "WeatherStep",
     "targetPlatforms": [
-        "aplite",
         "basalt",
         "chalk"
     ],
     "uuid": "aee3e7d9-9083-4138-b8ba-59424f73118c",
-    "versionLabel": "5.31",
+    "versionLabel": "5.50",
     "watchapp": {
         "watchface": true
     }
