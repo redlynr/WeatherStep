@@ -359,6 +359,9 @@ APP_LOG(APP_LOG_LEVEL_DEBUG, "shakeOption3 %d",shakeOption3);
      //} 
 
   } else if(third_animation_is_running) {
+    hide_ticker(shakeOption);
+    destroy_ticker();  
+    property_animation_destroy(s_box_animation);
     third_animation_is_running = false;
   }
   
